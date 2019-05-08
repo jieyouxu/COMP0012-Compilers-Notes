@@ -153,3 +153,20 @@ To recognize \textit{structure} of a phrase in the language, which produces an \
     \caption{Simple parse tree of Figure \ref{fig:source-code-to-lexemes-example-source-code}}
     \label{fig:simple-parse-tree-example}
 \end{figure}
+
+\subsection{Semantic Analysis}
+
+Validate the source code to have acceptable \textit{meaning}. Note that while the \textit{syntax} may be valid, but the \textit{semantics} may not be.
+
+\begin{figure}[H]
+    \centering
+    \begin{minted}{java}
+        String a;
+        if (a == 1)
+            System.out.println(a);
+    \end{minted}
+    \caption{Syntactically correct but semantically wrong. Note that trying to use the 
+        referential equality comparison operator \texttt{==} with two arguments of 
+        different types in this case yields a \texttt{TypeError}. }
+    \label{fig:my_label}
+\end{figure}
