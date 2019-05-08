@@ -93,6 +93,7 @@ To extract \textit{lexemes}\footnote{Note that \textit{lexeme} refers to a word 
         }
         \end{minted}
         \caption{Source Code}
+        \label{fig:source-code-to-lexemes-example-source-code}
     \end{subfigure}
     \begin{subfigure}{0.45\textwidth}
         \centering
@@ -105,4 +106,50 @@ To extract \textit{lexemes}\footnote{Note that \textit{lexeme} refers to a word 
     \end{subfigure}
     \caption{Example of converting source code to lexemes}
     \label{fig:source-code-to-lexemes-example}
+\end{figure}
+
+\subsection{Syntax Analysis}
+
+To recognize \textit{structure} of a phrase in the language, which produces an \textit{Abstract Syntax Tree} (AST).
+
+\begin{figure}[H]
+    \centering
+    \begin{forest}
+        [function-definition-statement
+            [function-signature
+                [return-type
+                    [\texttt{int}]
+                ]
+                [identifier
+                    [\texttt{main}]
+                ]
+                [argument-list
+                    [\texttt{(}]
+                    [argument
+                        [\texttt{void}]
+                    ]
+                    [\texttt{)}]
+                ]
+            ]
+            [block
+                [\texttt{\{}]
+                [statement-list
+                    [statement
+                        [return-statement
+                            [\texttt{return}]
+                        ]
+                        [expression
+                            [int-literal
+                                [\texttt{0}]
+                            ]
+                        ]
+                        [\texttt{;}]
+                    ]
+                ]
+                [\texttt{\}}]
+            ]
+        ]
+    \end{forest}
+    \caption{Simple parse tree of Figure \ref{fig:source-code-to-lexemes-example-source-code}}
+    \label{fig:simple-parse-tree-example}
 \end{figure}
