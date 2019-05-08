@@ -1,8 +1,42 @@
-\usepackage[utf8]{inputenc}
-
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{graphicx}
 
+\usepackage{fontspec}
+\usepackage{unicode-math}
+
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmonofont{Latin Modern Mono}
+\setmathfont{Latin Modern Math}
+
 \usepackage{enumitem}
 \setlist{nosep}
+
+\usepackage{tikz}
+\usetikzlibrary{matrix, shapes, arrows,calc, positioning}
+\tikzset{%
+    block/.style = {
+        rectangle, 
+        draw, 
+        align=center, 
+        minimum height=1em, 
+        minimum width=1em,
+        inner sep=0.5em
+    },
+    dashedblock/.style = {
+        rectangle,
+        draw,
+        align=center, 
+        minimum height=1em, 
+        minimum width=1em,
+        inner sep=0.5em,
+        dashed
+    },
+    line/.style = {
+        draw, 
+        -stealth
+    },
+}
+
+\usepackage{float}

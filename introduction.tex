@@ -10,4 +10,26 @@
 \subsection{Compiler Goals}
 \begin{itemize}
     \item Translate source code into \textit{equivalent} machine code.
+    \item Translation efficiency.
+    \item Useful error messages.
+    \item Parallel compilation support.
+    \item Program correctness verification.
 \end{itemize}
+
+\subsection{High-level Compiler Structure}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[auto]
+        \node [dashedblock] (n1) { Source \\ Code };
+        \node [block, right=1em of n1] (n2) { Analysis };
+        \node [dashedblock, right=1em of n2] (n3) { Intermediate \\ Representation };
+        \node [block, right=1em of n3] (n4) { Synthesis };
+        \node [dashedblock, right=1em of n4] (n5) { Target \\ Code };
+        
+        \foreach \i/\j in {1/2, 2/3, 3/4, 4/5}{
+            \path [line] (n\i) -- (n\j);
+        }
+    \end{tikzpicture}
+    \caption{Compiler High-level Overview}
+    \label{fig:compiler-high-level-overview}
+\end{figure}
