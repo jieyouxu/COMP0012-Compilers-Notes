@@ -170,3 +170,30 @@ Validate the source code to have acceptable \textit{meaning}. Note that while th
         different types in this case yields a \texttt{TypeError}. }
     \label{fig:my_label}
 \end{figure}
+
+\subsection{Error Handling and Symbol Table}
+
+\begin{figure}[H]
+    \centering
+    \fbox{
+    \begin{tikzpicture}[auto]
+        \node [block] (n1) { Source (\texttt{Stream<Char>}) };
+        \node [block, below=3em of n1] (n2) { Syntax Analysis (Parser) };
+        \draw [thick, ->] (n1) -- (n2) node [midway, fill=white] { Token Stream };
+        \node [block, left=2em of n2] (n3) { Error Handler };
+        \draw [thick, <->, dashed] (n1) -- (n3);
+        \node [block, right=2em of n2] (n4) { Symbol Table };
+        \draw [thick, <->, dashed] (n1) -- (n4);
+        \draw [thick, <->, dashed] (n2) -- (n3);
+        \draw [thick, <->, dashed] (n2) -- (n4);
+        \node [block, below=3em of n2] (n5) { Semantic Analysis };
+        \draw [thick, ->] (n2) -- (n5) node [midway, fill=white] { Abstract Syntax Tree (AST) };
+        \draw [thick, <->, dashed] (n3) -- (n5);
+        \draw [thick, <->, dashed] (n4) -- (n5);
+        \node [phantomblock, below=2em of n5] (n6) { \phantom{} };
+        \draw [thick, ->] (n5) -- (n6) node [midway, fill=white] { Decorated AST };
+    \end{tikzpicture}
+    }
+    \caption{Error handling and symbol table}
+    \label{fig:error-handling-and-symbol-table}
+\end{figure}

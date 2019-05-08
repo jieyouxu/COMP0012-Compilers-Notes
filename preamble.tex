@@ -14,7 +14,15 @@
 \setlist{nosep}
 
 \usepackage{tikz}
-\usetikzlibrary{matrix, shapes, arrows,calc, positioning, automata}
+\usetikzlibrary{
+    matrix, 
+    shapes, 
+    arrows,
+    calc, 
+    positioning, 
+    automata, 
+    positioning
+}
 \tikzset{%
     block/.style = {
         rectangle, 
@@ -36,6 +44,14 @@
     phantomblock/.style = {
         rectangle,
         draw=none,
+        align=center,
+        minimum height=1em,
+        minimum width=1em,
+        inner sep=0.5em
+    },
+    labelblock/.style = {
+        rectangle,
+        fill=white,
         align=center,
         minimum height=1em,
         minimum width=1em,
