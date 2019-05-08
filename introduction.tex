@@ -19,6 +19,7 @@
 \subsection{High-level Compiler Structure}
 \begin{figure}[H]
     \centering
+    \fbox{
     \begin{tikzpicture}[auto]
         \node [dashedblock] (n1) { Source Code };
         \node [block, below=1em of n1] (n2) { Analysis };
@@ -30,7 +31,8 @@
             \draw[thick, ->] (n\i) -- (n\j);
         }
     \end{tikzpicture}
-    \caption{Compiler High-level Overview}
+    }
+    \caption{Compiler high-level overview}
     \label{fig:compiler-high-level-overview}
 \end{figure}
 
@@ -50,7 +52,7 @@
         \draw [thick, ->] (n4) -- (n5) node [midway] { Decorated Abstract Syntax Tree (DAST) };
     \end{tikzpicture}
     }
-    \caption{Compiler Front-end Overview}
+    \caption{Compiler front-end overview}
     \label{fig:compiler-front-end-overview}
 \end{figure}
 
@@ -73,8 +75,34 @@
         \draw [thick, ->] (n4) -- (n5);
     \end{tikzpicture}
     }
-    \caption{Compiler Back-end Overview}
+    \caption{Compiler back-end overview}
     \label{fig:compiler-back-end-overview}
 \end{figure}
 
 \subsection{Lexical Analysis}
+
+To extract \textit{lexemes}\footnote{Note that \textit{lexeme} refers to a word in the source code, while a \textit{token} is a set of related lemexes such as \textit{identifiers}.} from source code:
+
+\begin{figure}[H]
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \begin{minted}{c}
+        int main(void)
+        {
+            return 0;
+        }
+        \end{minted}
+        \caption{Source Code}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \begin{minted}{text}
+        INT INDENTIFIER("MAIN") LPAREN
+        VOID RPAREN LBRACE RETURN 
+        INT_LITERAL(0) SEMI RBRACE
+        \end{minted}
+        \caption{Lexemes}
+    \end{subfigure}
+    \caption{Example of converting source code to lexemes}
+    \label{fig:source-code-to-lexemes-example}
+\end{figure}
