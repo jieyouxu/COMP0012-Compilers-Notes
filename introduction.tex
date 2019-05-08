@@ -71,7 +71,7 @@
         \draw [thick, ->] (n4) to [out=300,in=60] (n3);
         \node [block, below=2em of n3] (n4) { Code Generator };
         \draw [thick, ->] (n3) -- (n4) node [midway] { IR };
-        \node [phantomblock, below=2em of n4] (n5) { Machine Code };
+        \node [dashedblock, below=2em of n4] (n5) { Machine Code };
         \draw [thick, ->] (n4) -- (n5);
     \end{tikzpicture}
     }
@@ -177,7 +177,7 @@ Validate the source code to have acceptable \textit{meaning}. Note that while th
     \centering
     \fbox{
     \begin{tikzpicture}[auto]
-        \node [block] (n1) { Source (\texttt{Stream<Char>}) };
+        \node [dashedblock] (n1) { Source (\texttt{Stream<Char>}) };
         \node [block, below=3em of n1] (n2) { Syntax Analysis (Parser) };
         \draw [thick, ->] (n1) -- (n2) node [midway, fill=white] { Token Stream };
         \node [block, left=2em of n2] (n3) { Error Handler };
@@ -226,3 +226,41 @@ Note that HIR is closest to AST and LIR is closest to machine code. Examples of 
 \subsection{Optimizer}
 
 Rewrite \textit{intermediate code} to run faster and/or take up less space.
+
+\subsection{Code Generation}
+
+Output the program in the target language (usually assembly).
+
+\subsection{Combined Phases}
+
+\begin{figure}[H]
+    \centering
+    \fbox{
+    \begin{tikzpicture}[auto]
+        \node [dashedblock] (n1) { Source (\texttt{Stream<Char>}) };
+        \node [block, below=3em of n1] (n2) { Syntax Analysis (Parser) };
+        \draw [thick, ->] (n1) -- (n2) node [midway, fill=white] { Token Stream };
+        \node [block, left=2em of n2] (n3) { Error Handler };
+        \draw [thick, <->, dashed] (n1) -- (n3);
+        \node [block, right=2em of n2] (n4) { Symbol Table };
+        \draw [thick, <->, dashed] (n1) -- (n4);
+        \draw [thick, <->, dashed] (n2) -- (n3);
+        \draw [thick, <->, dashed] (n2) -- (n4);
+        \node [block, below=3em of n2] (n5) { Semantic Analysis };
+        \draw [thick, ->] (n2) -- (n5) node [midway, fill=white] { Abstract Syntax Tree (AST) };
+        \draw [thick, <->, dashed] (n3) -- (n5);
+        \draw [thick, <->, dashed] (n4) -- (n5);
+        \draw [thick, ->] (n5) -- (n6) node [midway, fill=white] { Decorated AST };
+        \node [block, below=2em of n5] (n6) { Optimizer };
+        \node [phantomblock, right=2em of n6] (n7) { IR };
+        \draw [thick, ->] (n6) to [out=300,in=60] (n7);
+        \draw [thick, ->] (n7) to [out=300,in=60] (n6);
+        \node [block, below=2em of n6] (n8) { Code Generator };
+        \draw [thick, ->] (n6) -- (n8) node [midway] { IR };
+        \node [dashedblock, below=2em of n8] (n9) { Machine Code };
+        \draw [thick, ->] (n8) -- (n9);
+    \end{tikzpicture}
+    }
+    \caption{All phases of a compiler}
+    \label{fig:compiler-all-phases}
+\end{figure}
