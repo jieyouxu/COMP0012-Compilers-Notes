@@ -1,0 +1,193 @@
+\section{Lexical Analysis}
+
+Extracts \textit{lexemes} from source code taken in as a stream of charcaters.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \node [phantomblock] (n1) { \phantom{} };
+        \node [block, right=8em of n1] (n2) { Lexer };
+        \node [phantomblock, right=8em of n2] (n3) { \phantom{} };
+        \draw [thick, ->] (n1) -- (n2) node [above, near start]
+            { Character stream };
+        \draw [thick, ->] (n2) -- (n3) node [above, near end]
+            { Token stream };
+    \end{tikzpicture}
+    \caption{Lexical Analysis I/O}
+    \label{fig:lexical-analysis-io}
+\end{figure}
+
+\begin{definition}[Lexeme]
+    A \textit{lexeme} is a sequence of characters which form a \textit{lexical unit} in the grammar of a given language.
+\end{definition}
+
+\begin{definition}[Delimiter]
+    A \textit{delimiter} is a character or a sequence of characters which separates lexemes.
+\end{definition}
+
+\begin{remark}
+    A \textit{lexeme} is analogous to a "word" within an English sentence separated by \textit{delimiters}, such as a "space".
+\end{remark}
+
+\subsection{Regular Expressions}
+
+\textit{Regular expressions} (often abbreviated as \textit{regex}) can be used to describe the lexemes of a language.
+
+To a recognize a \textit{regex}, one may use a \textit{Finite State Automata} (FSA), namely the \textit{Deterministic Finite Automata} (DFA), which is sufficiently powerful in recognizing \textit{regular} languages.
+
+\subsubsection{Definition of a Language}
+
+\begin{definition}[Alphabet]
+    An \textit{alphabet} $\Sigma$ is a finite set of symbols.
+\end{definition}
+
+\begin{definition}[String]
+    A \textit{string} over $\Sigma$ is a consecutive sequence of symbols from alphabet $\Sigma$.
+\end{definition}
+
+\begin{definition}[Language]
+    A \textit{language} $L$ is a set of strings over an alphabet $\Sigma$.
+\end{definition}
+
+\subsubsection{Regular Operations}
+
+\begin{definition}[Regular Operations]
+    Given languages $L_0$ and $L_1$, there are three fundamental \textit{regular operations} defined as
+    \begin{enumerate}
+        \item \textbf{Union} ($L_0 \cup L_1$) (also denoted $L_0 \mid L_1$)
+            \begin{equation}
+                L_0 \cup L_1 \coloneqq 
+                    \set{ x \given x \in L_0 \lor x \in L_1 }
+            \end{equation}
+        \item \textbf{Concatenation} ($L_0 \circ L_1$) (also denoted $L_0 L_1$)
+            \begin{equation}
+                L_0 \circ L_1 \coloneqq
+                    \set{ xy \given x \in L_0 \land y \in L_1 }
+            \end{equation}
+        \item \textbf{Kleene Star} ($L_0^{\ast}$)
+            \begin{equation}
+                L_0^{\ast} \coloneqq
+                    \set{ x_1 x_2 \cdots x_k 
+                        \given k > 0 \land x_i \in L_0
+                    } \cup \set{ \epsilon }
+            \end{equation}
+    \end{enumerate}
+\end{definition}
+
+\subsubsection{Regular Expression Formal Definition}
+
+\begin{definition}[Regular Expression]
+    For a given alphabet $\Sigma$, the \textit{regular expression} $R$ is defined inductively as
+    \begin{enumerate}
+        \item $a \in \Sigma$
+        \item $\epsilon$
+        \item $\emptyset$
+        \item $(R_1 \mid R_2)$
+        \item $(R_1 R_2)$
+        \item $(R_1^{\ast})$
+    \end{enumerate}
+    Where
+    \begin{itemize}
+        \item $R_1$, $R_2$ are valid \textit{regular expressions}.
+        \item $\epsilon$ denotes the empty string.
+        \item $\emptyset$ is the empty set.
+    \end{itemize}
+\end{definition}
+
+\begin{remark}
+    Note that \textit{parantheses} are need for the inductive cases to prevent ambiguity. This definition assumes that the concatenation, union and Kleene star operators have equal precedence.
+\end{remark}
+
+\begin{example}
+    Given alphabet $\Sigma = \set{a, b}$, then
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{@{} r  l @{}}
+            \toprule
+            Regular Expression $R$ & $L(R)$ \\
+            \midrule
+            $a$         & $\set{a}$ \\
+            $a \mid b$  & $\set{a, b}$ \\
+            $(ab)^\ast$ & 
+                $\set{\epsilon, ab, abab, ababab, \dots}$ \\
+            $(a \mid \epsilon)b$ & $\set{b, ab, aab, \dots}$ \\
+            $(a \mid b^\ast)a$ & $\set{a, aa, ba, bba, \dots}$ \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+    
+    Note that $L(R)$ denotes "the \textit{language} $L$ of the \textit{regex} $R$".
+\end{example}
+
+\subsubsection{Associativity}
+
+To reduce the number of \textit{parantheses} required to unambiguously interpret a \textit{regex}, it is possible to assign different \textit{priorities} to the three operators $\ast$, $\circ$ and $\mid$.
+
+\begin{definition}[Regular Operator Precedence]
+    For the regular operators,
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{@{} r | l @{}}
+            \toprule
+            Operator Precedence & Operator              \\
+            \midrule
+            Highest $\uparrow$  & Kleene Star $\ast$    \\
+            \phantom{}          & Concatenation $\circ$ \\
+            Lowest $\downarrow$ & Union $\cup$          \\
+            \bottomrule
+        \end{tabular}
+        \caption{Regular Operator Precedence}
+        \label{tab:regex-operator-precedence}
+    \end{figure}
+\end{definition}
+
+\begin{remark}
+    \textit{Precedence} can be thought as "binding power", that is, higher precedence implies higher binding power, and vice versa.
+\end{remark}
+
+\begin{example}
+    The regex 
+    \begin{equation*}
+        ab^\ast \mid cd
+    \end{equation*}
+    Is equivalently
+    \begin{equation*}
+        ((a \circ (b^\ast)) \mid (c \circ d))
+    \end{equation*}
+\end{example}
+\subsubsection{Syntax Sugars}
+
+\begin{definition}[Syntax Sugar]
+    \textit{Syntax sugar} for \textit{regexes} are introduced as aliases to make the regular language easier to express. However, syntax sugars do not otherwise change the expressiveness of regular languages -- they are simply \textit{aliases}.
+\end{definition}
+
+\begin{example}
+    Given the alphabet of the lowercase Roman alphabet $\Sigma$, one can introduce several syntax sugars operator and expressions
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{@{} r | l @{}}
+            \toprule
+            Syntax Sugar & Equivalent Regular Expression \\
+            \midrule
+            $a^+$ & $aa^\ast$  \\
+            $a?$ & $a \mid \epsilon$ \\
+            $[abc]$ & $a \mid b \mid c$ \\
+            $[a \mhyphen z]$ & 
+                $a \mid b \mid c \mid \cdots \mid z \equiv \Sigma$ \\
+            $.$ & 
+                $a \mid b \mid c \mid \cdots \mid z \equiv \Sigma$ \\
+            $[^{\wedge} a \mhyphen c]$ & 
+                $d \mid \cdots \mid z \equiv \Sigma - \set{a, b, c}$ \\
+            \bottomrule
+        \end{tabular}
+        \caption{Syntax sugar for the lowercase Roman alphabet}
+        \label{fig:roman-syntax-sugar}
+    \end{figure}
+\end{example}
+
+\begin{remark}
+    Operators introduced means there is a need to escape the \textit{meta-characters}, the characters which themselves are used to represent the regular operators.
+    
+    For example, to use the meta-character $\mid$ as an input character for a regular expression, one could escape it as $\backslash\vert$.
+\end{remark}
+

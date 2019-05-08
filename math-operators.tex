@@ -1,0 +1,60 @@
+\DeclarePairedDelimiterX\set[1]\lbrace\rbrace{\def\given{\;\delimsize\vert\;}#1}
+
+\DeclarePairedDelimiterX\VSBars[1]\lvert\rvert{#1}
+\DeclarePairedDelimiterX\VDBars[1]{\lvert\lvert}{\rvert\rvert}{#1}
+
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Rational}{\mathbb{Q}}
+\newcommand{\Complex}{\mathbb{C}}
+\newcommand{\Int}{\mathbb{Z}}
+\newcommand{\PosInt}{\mathbb{Z}^{+}}
+\newcommand{\NegInt}{\mathbb{Z}^{-}}
+\newcommand{\NatNum}{\mathbb{N}}
+\newcommand{\PosRat}{\mathbb{R}^{+}}
+\newcommand{\NegRat}{\mathbb{R}^{-}}
+
+\newcommand{\AlephZero}{\aleph_{0}}
+
+\DeclareMathOperator{\Exists}{\exists}
+\DeclareMathOperator{\Forall}{\forall}
+
+\DeclareMathOperator{\Diff}{\backslash}
+
+\newcommand{\AbsComplement}[1]{{#1}^{c}}
+
+\newcommand{\True}{\mathrm{T}}
+\newcommand{\False}{\mathrm{F}}
+
+\newcommand{\Domain}[1]{\operatorname{domain}({#1})}
+\newcommand{\Image}[1]{\operatorname{image}({#1})}
+
+\newcommand{\Inverse}[1]{{#1}^{-1}}
+
+\newcommand{\Permutate}[1]{\sigma({#1})}
+
+\DeclareMathOperator{\Sign}{sgn}
+
+\newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
+
+\newcommand{\Encrypt}[3]{\mathrm{encrypt}_{#1, #2}(#3)}
+\newcommand{\Decrypt}[3]{\mathrm{decrypt}_{#1, #2}(#3)}
+
+\newcommand{\MatrixClass}[2]{\mathcal{M}(#1, #2)}
+
+\newcommand{\rddots}{\reflectbox{$\ddots$}}
+
+\newenvironment{detmatrix}[1]{%
+  \left\vert\begin{array}{@{}*{#1}{c}@{}}
+}{%
+  \end{array}\right\vert
+}
+
+\newenvironment{augmatrix}[1]{%
+  \left[\begin{array}{@{}*{#1}{c}|c@{}}
+}{%
+  \end{array}\right]
+}
+
+\newcommand{\Prob}[1]{\mathrm{P}(#1)}
+
+\newcommand\mhyphen{\operatorname{-}}

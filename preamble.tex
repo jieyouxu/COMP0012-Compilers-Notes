@@ -1,8 +1,10 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{graphicx}
 
 \usepackage{fontspec}
+\usepackage{mathtools}
 \usepackage{unicode-math}
 
 \setmainfont{Latin Modern Roman}
@@ -70,6 +72,19 @@
 
 \usepackage{forest}
 
+\usepackage{booktabs}
+
 \usepackage{csquotes}
 
 \usepackage[font={small}, margin=1cm]{caption}
+
+\theoremstyle{definition}
+\newtheorem{theorem}{Theorem}[section]
+
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\newtheorem*{example}{Example}
