@@ -27,7 +27,7 @@
         \node [dashedblock, below=1em of n4] (n5) { Target Code };
         
         \foreach \i/\j in {1/2, 2/3, 3/4, 4/5}{
-            \draw[-implies,double equal sign distance] (n\i) -- (n\j);
+            \draw[thick, ->] (n\i) -- (n\j);
         }
     \end{tikzpicture}
     \caption{Compiler High-level Overview}
@@ -37,21 +37,44 @@
 \subsection{Compiler Front-end}
 \begin{figure}[H]
     \centering
+    \fbox{
     \begin{tikzpicture}[auto]
         \node [dashedblock] (n1) { Source ( \texttt{Stream<Char>} ) };
-        \node [block, below=1em of n1] (n2) { Lexical Analysis (Lexer/Scanner) };
-        \node [block, below=1em of n2] (n3) { Syntax Analysis (Parser) };
-        \node [dashedblock, below=1em of n3] (n4) { Abstract Syntax Tree (AST) };
-        \node [block, below=1em of n4] (n5) { Semantic Analysis };
-        \node [dashedblock, below=1em of n5] (n6) { Decorated Abstract Syntax Tree (DAST) };
-        \node [phantomblock, below=1em of n6] (n7) { $\cdots$ \textit{to back-end} };
-        
-        \foreach \i/\j in {1/2, 2/3, 3/4, 4/5, 5/6, 6/7}{
-            \draw[-implies,double equal sign distance] (n\i) -- (n\j);
-        }
+        \node [block, below=2em of n1] (n2) { Lexical Analysis (Lexer/Scanner) };
+        \draw [thick, ->] (n1) -- (n2);
+        \node [block, below=2em of n2] (n3) { Syntax Analysis (Parser) };
+        \draw [thick, ->] (n2) -- (n3) node [midway] { Token Stream };
+        \node [block, below=2em of n3] (n4) { Semantic Analysis };
+        \draw [thick, ->] (n3) -- (n4) node [midway] { Abstract Syntax Tree (AST) };
+        \node [phantomblock, below=2em of n4] (n5) { \textit{to back-end} $\cdots$ };
+        \draw [thick, ->] (n4) -- (n5) node [midway] { Decorated Abstract Syntax Tree (DAST) };
     \end{tikzpicture}
+    }
     \caption{Compiler Front-end Overview}
     \label{fig:compiler-front-end-overview}
 \end{figure}
 
 \subsection{Compiler Back-end}
+\begin{figure}[H]
+    \centering
+    \fbox{
+    \begin{tikzpicture}[auto]
+        \node [phantomblock] (n1) { $\cdots$ \textit{from front-end} };
+        \node [block, below=2em of n1] (n2) { Intermediate Code Generator };
+        \draw [thick, ->] (n1) -- (n2) node [midway] { Decorated Abstract Syntax Tree (DAST) };
+        \node [block, below=2em of n2] (n3) { Optimizer };
+        \draw [thick, ->] (n2) -- (n3) node [midway] { Intermediate Representation (IR) };
+        \node [phantomblock, right=2em of n3] (n4) { IR };
+        \draw [thick, ->] (n3) to [out=300,in=60] (n4);
+        \draw [thick, ->] (n4) to [out=300,in=60] (n3);
+        \node [block, below=2em of n3] (n4) { Code Generator };
+        \draw [thick, ->] (n3) -- (n4) node [midway] { IR };
+        \node [phantomblock, below=2em of n4] (n5) { Machine Code };
+        \draw [thick, ->] (n4) -- (n5);
+    \end{tikzpicture}
+    }
+    \caption{Compiler Back-end Overview}
+    \label{fig:compiler-back-end-overview}
+\end{figure}
+
+\subsection{Lexical Analysis}
