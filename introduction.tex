@@ -264,3 +264,46 @@ Output the program in the target language (usually assembly).
     \caption{All phases of a compiler}
     \label{fig:compiler-all-phases}
 \end{figure}
+
+\subsection{Compiler versus Interpreter}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \fbox{
+        \begin{tikzpicture}
+            \node [dashedblock] (n1) { Source Code };
+            \node [block, below=2em of n1] (n2) { Executable Code };
+            \node [block, below=2em of n2] (n3) { CPU };
+            \draw [thick, ->] (n1) -- (n2) node [midway, right] 
+                { preprocessing };
+            \draw [thick, ->] (n2) -- (n3) node [midway, right]
+                { execution };
+        \end{tikzpicture}
+        }
+        \caption{Compiler}
+        \label{fig:compiler-vs-interpreter:compiler}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \fbox{
+        \begin{tikzpicture}
+            \node [dashedblock] (n1) { Source Code };
+            \node [block, below=2em of n1] (n2) { IR Code };
+            \node [block, below=2em of n2] (n3) { Interpreter };
+            \node [block, below=2em of n3] (n4) { CPU };
+            \draw [thick, ->] (n1) -- (n2) node [midway, right] 
+                { preprocessing };
+            \draw [thick, ->] (n2) -- (n3) node [midway, right]
+                { execution };
+            \draw [thick, ->] (n3) -- (n4) node [midway, right]
+            { execution };
+        \end{tikzpicture}
+        }
+        \caption{Interpreter}
+        \label{fig:compiler-vs-interpreter:interpreter}
+    \end{subfigure}
+    \caption{Difference between a compiler and an interpreter}
+    \label{fig:compiler-vs-interpreter}
+\end{figure}
