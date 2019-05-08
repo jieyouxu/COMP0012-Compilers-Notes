@@ -197,3 +197,28 @@ Validate the source code to have acceptable \textit{meaning}. Note that while th
     \caption{Error handling and symbol table}
     \label{fig:error-handling-and-symbol-table}
 \end{figure}
+
+\subsection{Intermediate Code Generator}
+
+To produce \textit{intermediate code} which allows:
+\begin{itemize}
+    \item \textit{Portability} (machine and language independence).
+    \item \textit{Decoupling} between front-end and back-end.
+    \item Allow \textit{transpiling} and \textit{optimization}.
+\end{itemize}
+
+\subsubsection{Intermediate Representation (IR)}
+
+Three tiers of \textit{intermediate representation} (IR) in varying degree of abstraction:
+\begin{itemize}
+    \item High-level IR (HIR)
+    \item Mid-level IR (MIR)
+    \item Low-level IR (LIR)
+\end{itemize}
+
+Note that HIR is closest to AST and LIR is closest to machine code. Examples of LIR include:
+\begin{itemize}
+    \item Three Address Code (TAC)
+    \item LLVM IR
+    \item GCC Gimple
+\end{itemize}
