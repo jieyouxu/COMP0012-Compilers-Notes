@@ -20,16 +20,38 @@
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[auto]
-        \node [dashedblock] (n1) { Source \\ Code };
-        \node [block, right=1em of n1] (n2) { Analysis };
-        \node [dashedblock, right=1em of n2] (n3) { Intermediate \\ Representation };
-        \node [block, right=1em of n3] (n4) { Synthesis };
-        \node [dashedblock, right=1em of n4] (n5) { Target \\ Code };
+        \node [dashedblock] (n1) { Source Code };
+        \node [block, below=1em of n1] (n2) { Analysis };
+        \node [dashedblock, below=1em of n2] (n3) { Intermediate Representation };
+        \node [block, below=1em of n3] (n4) { Synthesis };
+        \node [dashedblock, below=1em of n4] (n5) { Target Code };
         
         \foreach \i/\j in {1/2, 2/3, 3/4, 4/5}{
-            \path [line] (n\i) -- (n\j);
+            \draw[-implies,double equal sign distance] (n\i) -- (n\j);
         }
     \end{tikzpicture}
     \caption{Compiler High-level Overview}
     \label{fig:compiler-high-level-overview}
 \end{figure}
+
+\subsection{Compiler Front-end}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[auto]
+        \node [dashedblock] (n1) { Source ( \texttt{Stream<Char>} ) };
+        \node [block, below=1em of n1] (n2) { Lexical Analysis (Lexer/Scanner) };
+        \node [block, below=1em of n2] (n3) { Syntax Analysis (Parser) };
+        \node [dashedblock, below=1em of n3] (n4) { Abstract Syntax Tree (AST) };
+        \node [block, below=1em of n4] (n5) { Semantic Analysis };
+        \node [dashedblock, below=1em of n5] (n6) { Decorated Abstract Syntax Tree (DAST) };
+        \node [phantomblock, below=1em of n6] (n7) { $\cdots$ \textit{to back-end} };
+        
+        \foreach \i/\j in {1/2, 2/3, 3/4, 4/5, 5/6, 6/7}{
+            \draw[-implies,double equal sign distance] (n\i) -- (n\j);
+        }
+    \end{tikzpicture}
+    \caption{Compiler Front-end Overview}
+    \label{fig:compiler-front-end-overview}
+\end{figure}
+
+\subsection{Compiler Back-end}
