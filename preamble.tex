@@ -12,6 +12,8 @@
 \setmonofont{Latin Modern Mono}
 \setmathfont{Latin Modern Math}
 
+\usepackage[english]{babel}
+
 \usepackage{enumitem}
 \setlist{nosep}
 
@@ -88,3 +90,10 @@
 \theoremstyle{remark}
 \newtheorem*{remark}{Remark}
 \newtheorem*{example}{Example}
+
+\usepackage{xpatch,letltxmacro}
+\LetLtxMacro{\cminted}{\minted}
+\let\endcminted\endminted
+\xpretocmd{\cminted}{\RecustomVerbatimEnvironment{Verbatim}{BVerbatim}{}}{}{}
+
+\renewcommand{\figurename}{Listing}

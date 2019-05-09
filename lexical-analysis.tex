@@ -191,3 +191,88 @@ To reduce the number of \textit{parantheses} required to unambiguously interpret
     For example, to use the meta-character $\mid$ as an input character for a regular expression, one could escape it as $\backslash\vert$.
 \end{remark}
 
+\subsubsection{Ambiguity}
+
+\begin{definition}[Ambiguous]
+    A regex is \textit{ambiguous} if it recognizes input string in multiple ways.
+\end{definition}
+
+\begin{example}
+    The regex $(00)^\ast (000)^\ast$ is \textit{ambiguous} since it can recognize the input string \enquote{$000000$} as either
+    \begin{itemize}
+        \item $000 \circ 000$, or
+        \item $00 \circ 00 \circ 00$.
+    \end{itemize}
+\end{example}
+
+\begin{example}
+    A more significant example would be in the case of keywords vs identifiers in a programming language. For example,
+    \begin{figure}[H]
+        \centering
+        \begin{forest}
+            [\texttt{ifa:=0}
+                [\boxed{
+                    \texttt{<if> <a> <:=> <0> <;>}
+                }]
+                [\boxed{
+                    \texttt{<ifa> <:=> <0> <;>}
+                }]
+            ]
+        \end{forest}
+        \caption{Ambiguity in keywords vs identifiers}
+    \end{figure}
+\end{example}
+
+It is then necessary to disambiguate between different possible matches and only retain a single matching pattern.
+
+\begin{definition}[Disambiguation]
+    Two rules are used for \textit{disambiguation}:
+    \begin{enumerate}
+        \item \textbf{Longest Match}
+        \item \textbf{Rule Priority} (order)
+    \end{enumerate}
+\end{definition}
+
+\subsubsection{Greedy Matching}
+
+\begin{definition}[Greedy Matching]
+    \textit{Greedy matching} refers to the default behaviour for regexes to recognize as much of the input as possible. For instance, to match HTML tags such as
+    \begin{figure}[H]
+        \centering
+        \begin{cminted}{html}
+        <a href="/"> Test </a>
+        \end{cminted}
+    \end{figure}
+    
+    The pattern
+    \begin{equation*}
+        \langle \Sigma^+ \rangle
+    \end{equation*}
+    
+    Matches the entire input sequence
+    \begin{equation*}
+        \boxed{\texttt{<a href="/"> Test </a>}}
+    \end{equation*}
+    
+    To match only the tags themselves, one would need to exclude the opening and closing angle brackets
+    \begin{equation*}
+        \langle (\Sigma - \set{\langle, \rangle})^+ \rangle
+    \end{equation*}
+    
+    Which would yield the desired match
+    \begin{equation*}
+        \boxed{\texttt{<a href="/">}}
+        \texttt{ Test }
+        \boxed{\texttt{</a>}}
+    \end{equation*}
+\end{definition}
+
+\subsubsection{Searching versus Lexing}
+
+\begin{definition}[Searching]
+    \textit{Searching} aims to find a substring which satisfies a regex and can ignore the rest of the input characters.
+\end{definition}
+
+\begin{remark}
+    Note that while \textit{searching} aims to find \textit{a} substring which matches the supplied regex, \textit{lexing} aims to find \textit{all} substrings which matches the supplied regex.
+\end{remark}
