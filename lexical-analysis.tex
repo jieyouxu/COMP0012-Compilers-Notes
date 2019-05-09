@@ -300,3 +300,51 @@ To recognize a \textit{regular expression}, one may use a \textit{Deterministic 
         \item \textbf{Final States}: $\mathcal{F} \subseteq \mathcal{Q}$ is the set of \textit{final states}.
     \end{enumerate}
 \end{definition}
+
+\subsubsection{DFA Notation}
+
+A DFA can be represented graphically with the following notations.
+
+\begin{definition}[DFA Notations]
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}{0.24\textwidth}
+            \centering
+            \begin{tikzpicture}
+                \node [state] (q_i) {$q_i$};
+            \end{tikzpicture}
+            \caption{State}
+        \end{subfigure}
+        \begin{subfigure}{0.24\textwidth}
+            \centering
+            \begin{tikzpicture}
+                \node [state, initial] (q_0) {$q_0$};
+            \end{tikzpicture}
+            \caption{Start State}
+        \end{subfigure}
+        \begin{subfigure}{0.24\textwidth}
+            \centering
+            \begin{tikzpicture}
+                \node [state, accepting] (q_f) {$q_f$};
+            \end{tikzpicture}
+            \caption{Final State}
+        \end{subfigure}
+        \begin{subfigure}{0.24\textwidth}
+            \centering
+            \begin{tikzpicture}
+                \node [state] (q_1) {$q_1$};
+                \node [state, right=2em of q_1] (q_2) {$q_2$};
+                \path [->] (q_1) edge node [midway, above] {$x$} (q_2);
+            \end{tikzpicture}
+            \caption{Transition}
+        \end{subfigure}
+        \caption{DFA Notations}
+        \label{fig:dfa-notations}
+    \end{figure}
+    
+    Note that $q_1 \times a \to q_2$ denotes to transition from state $q_1$ to $q_2$ on reading input character $a$.
+\end{definition}
+
+\begin{remark}
+    Note that DFA diagrams usually omit the trash state $q_{\textit{trash}}$, which is the implicit final state that rejects the read input string.
+\end{remark}
