@@ -447,3 +447,169 @@ A \textit{Non-deterministic Finite Automata} (NFA) is a DFA with added convience
     \caption{DFA versus NFA}
     \label{fig:dfa-vs-nfa}
 \end{figure}
+
+\begin{remark}
+    Note that NFA often has fewer nodes and edges compared to a DFA due to its non-determinism.
+\end{remark}
+
+\subsection{Implementing Lexing Automata}
+
+\subsubsection{Overview}
+
+Implementing a lexer specification involves the following process.
+
+\begin{figure}[H]
+    \centering
+    \fbox{
+    \begin{tikzpicture}
+        \node [block] (lex_spec) { Lexical Specification };
+        \node [block, below=2em of lex_spec] (regex) 
+            { Regular Expression (Regex) };
+        \node [block, below=2em of regex] (NFA) 
+            { Non-deterministic Finite Automata (NFA) };
+        \node [block, below=2em of NFA] (DFA)
+            { Deterministic Finite Automata (DFA) };
+        \node [block, below=2em of DFA] (TDI)
+            { Table-driven DFA Implementation };
+        \draw [->] (lex_spec) -- (regex);
+        \draw [->] (regex) -- (NFA);
+        \draw [->] (NFA) -- (DFA);
+        \draw [->] (DFA) -- (TDI);
+    \end{tikzpicture}
+    }
+    \caption{Lexing Automata Implementation}
+    \label{fig:lexing-automata-overview}
+\end{figure}
+
+\subsubsection{Regular Expression to NFA Conversion (Thompson's Construction)}
+
+The algorithm for converting regex to NFA is called  \textit{Thompson's Construction}.
+
+\begin{definition}[Thompson's Construction]
+    Given regex $A$, let $N(A)$ denote the application of the rules of \textit{Thompson's Construction}.
+    
+    Let $A$ have a single start and final state.
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \node [state, initial] (q_s) {};
+            \node [phantomblock, right=2em of q_s] (q_p) 
+                { \phantom{} };
+            \node [phantomblock, above=0.5em of q_p] (q_a) 
+                {$A$};
+            \node [state, accepting, right=2em of q_p] (q_f) {};
+            \draw [->] (q_s) -- (q_p);
+            \draw [->] (q_p) -- (q_f);
+            \node [draw=black, fit=(q_s) (q_f) (q_p) (q_a)] {};
+        \end{tikzpicture}
+        \caption{Regex $A$}
+        \label{fig:thompson-notation}
+    \end{figure}
+    
+    \textbf{CASE 1}: Single Symbol.
+    
+    Transition for a single input character $a \in \Sigma$ (note that $\epsilon$ is simply a symbol).
+    
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \node [state, initial] (q_s) {};
+            \node [state, accepting, right=2em of q_s] (q_f) {};
+            \draw [->] (q_s) edge node [midway, above] { $a$ } (q_f);
+        \end{tikzpicture}
+        \caption{Single Symbol Case}
+        \label{fig:thompson-single-symbol}
+    \end{figure}
+    
+    \textbf{CASE 2}: Concatenation.
+    
+    Given two regexes $A$ and $B$, then $AB$ is simply $A$'s final state \textit{definalized}, and merged as $B$'s start state. That is, $A$'s final acceptance state is no longer accepting and becomes $B$'s start state.
+    
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \node [state, initial] (qa_s) {};
+            \node [phantomblock, right=2em of qa_s] (qa_p) 
+                { \phantom{} };
+            \node [phantomblock, above=0.5em of qa_p] (qa_a) 
+                {$N(A)$};
+            \node [state, dashed, right=2em of qa_p] (qa_f) {};
+            \draw [->] (qa_s) -- (qa_p);
+            \draw [->] (qa_p) -- (qa_f);
+            \node [draw=black, fit=(qa_s) (qa_f) (qa_p) (qa_a)] {};
+            \node [state, dashed, right=3em of qa_f] (qb_s) {};
+            \node [phantomblock, right=2em of qb_s] (qb_p) 
+                { \phantom{} };
+            \node [phantomblock, above=0.5em of qb_p] (qb_a) 
+                {$N(B)$};
+            \node [state, accepting, right=2em of qb_p] (qb_f) {};
+            \draw [->] (qb_s) -- (qb_p);
+            \draw [->] (qb_p) -- (qb_f);
+            \node [draw=black, fit=(qb_s) (qb_f) (qb_p) (qb_a)] {};
+            \draw [-, dashed] (qa_f) -- (qb_s) node [midway, above] {$\equiv$};
+        \end{tikzpicture}
+        \caption{Concatenation Case}
+        \label{fig:thompson-concat}
+    \end{figure}
+    
+    \textbf{CASE 3}: Union (Alternation).
+    
+    Given two regexes $A$, $B$, then the union $A \mid B$ can be converted to NFA by:
+    \begin{enumerate}
+        \item Introduce new start state.
+        \item Definalize $A$ and $B$'s final state.
+        \item Introduce new final state.
+        \item Connect the new start state, new final state, and $A$ and $B$ with $\epsilon$-transitions.
+    \end{enumerate}
+    
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[node distance=6em]
+            \node [state, initial]   (q_s) {};
+            \node [state]            (qa_s) [above right of=q_s] {};
+            \node [state]            (qb_s) [below right of=q_s] {};
+            \node [phantomblock]     (qa_p) [right of=qa_s] {};
+            \node [phantomblock]     (qa_l) [above of=qa_p, node distance=1em] { $N(A)$ };
+            \node [phantomblock]     (qb_p) [right of=qb_s] {};
+            \node [phantomblock]     (qb_l) [above of=qb_p, node distance=1em] { $N(B)$ };
+            \node [state]            (qa_f) [right of=qa_p] {};
+            \node [state]            (qb_f) [right of=qb_p] {};
+            \node [state, accepting] (q_f)  [below right of=qa_f] {};
+            \draw [->] (q_s) edge [above] node[midway] {$\epsilon$} (qa_s);
+            \draw [->] (q_s) edge [above] node[midway] {$\epsilon$} (qb_s);
+            \draw [->] (qa_s) -- (qa_p);
+            \draw [->] (qa_p) -- (qa_f);
+            \draw [->] (qb_s) -- (qb_p);
+            \draw [->] (qb_p) -- (qb_f);
+            \draw [->] (qa_f) edge [above] node[midway] {$\epsilon$} (q_f);
+            \draw [->] (qb_f) edge [above] node[midway] {$\epsilon$} (q_f);
+            \node [draw=black, fit=(qa_s) (qa_p) (qa_l) (qa_f)] {};
+            \node [draw=black, fit=(qb_s) (qb_p) (qb_l) (qb_f)] {};
+        \end{tikzpicture}
+        \caption{Union Case}
+        \label{fig:thompson-union}
+    \end{figure}
+    
+    \textbf{CASE 4}: Kleene Star.
+    
+    Given regex $A$, then its Kleene star $A^\ast$ can be converted to NFA by connecting $N(A)$'s start state and final state.
+    
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \node [state, initial, initial text=] (q_s) {};
+            \node [phantomblock, right=2em of q_s] (q_p) {};
+            \node [state, accepting, right=2em of q_p] (q_f) {};
+            \node [phantomblock, above=0.1em of q_p] (q_l) {$N(A)$};
+            \draw [->] (q_s) -- (q_p);
+            \draw [->] (q_p) -- (q_f);
+            \path [->] (q_s) edge [bend left=60, above] 
+                node [midway] {$\epsilon$} (q_f);
+            \path [->] (q_f) edge [bend left=60, below] 
+                node [midway] {$\epsilon$} (q_s);
+            \node [draw=black, fit=(q_s) (q_f), inner sep=3em] {};
+        \end{tikzpicture}
+        \caption{Kleene Star Case}
+        \label{fig:thompson-kleene-star}
+    \end{figure}
+\end{definition}
