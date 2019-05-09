@@ -348,3 +348,76 @@ A DFA can be represented graphically with the following notations.
 \begin{remark}
     Note that DFA diagrams usually omit the trash state $q_{\textit{trash}}$, which is the implicit final state that rejects the read input string.
 \end{remark}
+
+\subsection{Non-deterministic Finite Automata}
+
+A \textit{Non-deterministic Finite Automata} (NFA) is a DFA with added convience features that do not otherwise change its expressive power.
+
+\begin{definition}[Non-deterministic Finite Automata (NFA)]
+    A \textit{Non-deterministic Finite Automata} (NFA) $M$ can be described by the 5-tuple
+    \begin{equation}
+        M = \langle
+            \Sigma,
+            \mathcal{Q},
+            \delta,
+            q_0,
+            \mathcal{F}
+        \rangle
+    \end{equation}
+    
+    Where
+    \begin{enumerate}
+        \item \textbf{Alphabet}: $\Sigma$ is the finite set of characters making up the \textit{alphabet}.
+        \item \textbf{States}: $\mathcal{Q}$ is the finite set of \textit{states}.
+        \item \textbf{Transition Function}: $\delta \colon \mathcal{Q} \times \Sigma_{\epsilon} \to \Pow{\mathcal{Q}}$.
+        \item \textbf{Start State}: $q_0 \in \mathcal{Q}$.
+        \item \textbf{Final States}: $\mathcal{F} \subseteq \mathcal{Q}$.
+    \end{enumerate}
+    
+    Note that $\Sigma_{\epsilon} \coloneqq \Sigma \cup \set{\epsilon}$ and $\Pow{\cdot}$ is the power set.
+\end{definition}
+
+\begin{remark}
+    Special attention needs to be paid to the \textit{transition function} of the NFA. Notice that for the transition function $\delta$
+    \begin{equation}
+        \delta \colon \mathcal{Q} \times \Sigma_{\epsilon} \to \Pow{\mathcal{Q}}
+    \end{equation}
+
+    \begin{itemize}
+        \item There may be $\epsilon$-transitions (read as \textit{epsilon}-transitions). The NFA may change states \textit{without} reading input.
+        \item On a single input character, the NFA can transition to \textit{multiple} states.
+        \item On a single input character, the NFA can also go to \textit{no} state ($\emptyset$).
+    \end{itemize}
+    
+    These convenience features combined gives rise to the \textit{non-determinism} in the name of the NFA.
+    
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{tikzpicture}
+            \node [state] (q_1) {$q_1$};
+            \node [state, right=2em of q_1] (q_2) {$q_2$};
+            \draw [->] (q_1) edge node [midway, above] {$\epsilon$} (q_2);
+            \end{tikzpicture}
+            \caption{Epsilon Transition}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{tikzpicture}
+            \node [state] (q_1) {$q_1$};
+            \node [state, above right=2em of q_1] (q_2) {$q_2$};
+            \node [state, below right=2em of q_1] (q_3) {$q_2$};
+            \draw [->] (q_1) edge node [midway, above] {$x$} (q_2);
+            \draw [->] (q_1) edge node [midway, above] {$x$} (q_3);
+            \end{tikzpicture}
+            \caption{Transition to Multiple States}
+        \end{subfigure}
+        \caption{NFA Convenience Features}
+        \label{fig:nfa-notation}
+    \end{figure}
+\end{remark}
+
+\begin{definition}[NFA Acceptance]
+    An NFA \textit{accepts} an input string if it is able to reach a final state upon consuming the input string.
+\end{definition}
