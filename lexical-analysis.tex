@@ -613,3 +613,26 @@ The algorithm for converting regex to NFA is called  \textit{Thompson's Construc
         \label{fig:thompson-kleene-star}
     \end{figure}
 \end{definition}
+
+\subsubsection{NFA to DFA Conversion}
+
+It is also possible to convert from NFA to DFA as they have equivalent power.
+
+\begin{definition}[NFA to DFA Conversion]
+    Given NFA $\langle \Sigma, \mathcal{Q}_N, \delta_N, q_N, \mathcal{F}_N \rangle$, it is possible to construct an equivalent DFA $\langle \Sigma, \mathcal{Q}_D, \delta_D, q_D, \mathcal{F}_D \rangle$.
+    
+    Each state $q_D$ of the DFA is a subset of the states of the NFA.
+    \begin{equation}
+        \Forall q_D \in \mathcal{Q}_D \colon q_D \subseteq \mathcal{Q}_N
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Epsilon Closure]
+    The \textit{$\epsilon$-closure} of a state $q$, denoted $\epsilon(q)$, is the set of NFA states which are reachable from $q$ with $\epsilon$-transitions.
+    
+    \begin{equation}
+        \epsilon(q) = \left\lbrace r \in \mathcal{Q} \mid q \xrightarrow[\epsilon]{\ast} r \right\rbrace
+    \end{equation}
+    
+    Note that $\epsilon(q) \ne \emptyset$ since the state $q \in \epsilon(q)$.
+\end{definition}
