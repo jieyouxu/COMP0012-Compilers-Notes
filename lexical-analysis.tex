@@ -100,7 +100,7 @@ To a recognize a \textit{regex}, one may use a \textit{Finite State Automata} (F
 
 \begin{example}
     Given alphabet $\Sigma = \set{a, b}$, then
-    \begin{table}[H]
+    \begin{table}[H]    
         \centering
         \begin{tabular}{@{} r  l @{}}
             \toprule
@@ -481,7 +481,7 @@ Implementing a lexer specification involves the following process.
     \label{fig:lexing-automata-overview}
 \end{figure}
 
-\subsubsection{Regular Expression to NFA Conversion (Thompson's Construction)}
+\subsection{Regular Expression to NFA Conversion (Thompson's Construction)}
 
 The algorithm for converting regex to NFA is called  \textit{Thompson's Construction}.
 
@@ -614,7 +614,7 @@ The algorithm for converting regex to NFA is called  \textit{Thompson's Construc
     \end{figure}
 \end{definition}
 
-\subsubsection{NFA to DFA Conversion}
+\subsection{NFA to DFA Conversion}
 
 It is also possible to convert from NFA to DFA as they have equivalent power.
 
@@ -634,5 +634,81 @@ It is also possible to convert from NFA to DFA as they have equivalent power.
         \epsilon(q) = \left\lbrace r \in \mathcal{Q} \mid q \xrightarrow[\epsilon]{\ast} r \right\rbrace
     \end{equation}
     
-    Note that $\epsilon(q) \ne \emptyset$ since the state $q \in \epsilon(q)$.
+    Note that $\epsilon(q) \ne \emptyset$ since the state $q$ is itself in its $\epsilon$ closure, that is $q \in \epsilon(q)$.
+\end{definition}
+
+% TODO
+% TODO: NFA -> DFA algorithm
+% TODO
+% TODO
+% TODO
+
+\subsection{Finite State Transducers}
+
+\begin{definition}
+    The \textit{Finite State Transducer} (FST) $M$ can be described by the 6-tuple
+    \begin{equation}
+        M = \langle
+            \Sigma,
+            \Gamma,
+            \mathcal{Q},
+            \delta,
+            q_0,
+            \mathcal{F}
+        \rangle
+    \end{equation}
+    
+    Where
+    \begin{enumerate}
+        \item \textbf{Input Alphabet}: $\Sigma$ is the set of characters making up the \textit{input alphabet}.
+        \item \textbf{Output Alphabet}: $\Gamma$ is the set of characters making up the \textit{output alphabet}.
+        \item \textbf{States}: $\mathcal{Q}$ is the finite set of \textit{states}.
+        \item \textbf{Transition Function}: $\delta \colon \mathcal{Q} \times \Sigma_{\epsilon} \to \Gamma_{\epsilon} \times \mathcal{Q}$.
+        \item \textbf{Start State}: $q_0 \in \mathcal{Q}$.
+        \item \textbf{Final States}: $\mathcal{F} \subseteq \mathcal{Q}$.
+    \end{enumerate}
+    
+    Note that $\Gamma_{\epsilon} \coloneqq \Gamma \cup \set{\epsilon}$ and $\Sigma_{\epsilon} \coloneqq \Sigma \cup \set{\epsilon}$.
+\end{definition}
+
+\subsubsection{FST Output Function}
+
+There are two output functions defined implicitly in the previous definition of a FST.
+
+\begin{definition}[Mealy Output Function]
+    The \textit{Mealy output function} is implicit in the FSA's transition function, and is defined as
+    \begin{equation}
+        \mathcal{Q} \times \Sigma_{\epsilon} \to \Gamma_{\epsilon}
+    \end{equation}
+    
+    This output function outputs on the \textit{edges}. Its edges are labeled as \enquote{$i/o$}, where $i \in \Sigma_{\epsilon}$ and $j \in \Gamma_{\epsilon}$.
+    
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \node [state] (q_i) {$q_i$};
+            \node [state, right=2em of q_i] (q_j) {$q_j$};
+            \draw [->] (q_i) edge node [midway, above] {$i/o$} (q_j);
+        \end{tikzpicture}
+        \caption{Mealy Output Function}
+        \label{fig:fst-mealy}
+    \end{figure}
+\end{definition}
+
+\begin{definition}[Moore Output Function]
+    The \textit{Moore output function} is also implicit in the FSA's transition function, and is defined as
+    \begin{equation}
+        \mathcal{Q} \to \Gamma_{\epsilon}
+    \end{equation}
+    
+    This output function outputs upon entry to a state. Its nodes are labelled with output \enquote{$o$}.
+    
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \node [state] (q_i) {$q_i/o$};
+        \end{tikzpicture}
+        \caption{Moore Output Function}
+        \label{fig:fst-moore}
+    \end{figure}
 \end{definition}

@@ -1,0 +1,38 @@
+\section{Semantic Analysis}
+
+\begin{definition}[Symbol Table]
+    Symbol table contains binding information. I.e. association between identifiers and information such as their scope and type.
+\end{definition}
+
+\subsection{CHANGE ME}
+
+\begin{figure}[H]
+    \centering
+    \fbox{
+    \begin{tikzpicture}
+        \node [phantomblock] (start) { \phantom{} };
+        \node [block, below=1em of start] (lexer) {Lexical Analysis};
+        \node [phantomblock, right=0.5em of lexer] {Regular Language};
+        \node [block, below=1em of lexer] (parser) {Syntax Analysis};
+        \node [phantomblock, right=0.5em of parser] {Context-Free Language};
+        \node [block, below=1em of parser] (semantic) {Semantic Analysis};
+        \node [phantomblock, right=0.5em of semantic] {Contextual Language};
+        \node [phantomblock, below=1em of semantic] (end) {};
+        \draw [->] (start) -- (lexer);
+        \draw [->] (lexer) -- (parser);
+        \draw [->] (parser) -- (semantic);
+        \draw [->] (semantic) -- (end);
+    \end{tikzpicture}
+    }
+    \caption{Languages used for different phases}
+    \label{fig:language-in-different-phases}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        %\draw (1,1)--(0,0)
+        
+    \end{tikzpicture}
+    
+\end{figure}
