@@ -421,3 +421,29 @@ A \textit{Non-deterministic Finite Automata} (NFA) is a DFA with added convience
 \begin{definition}[NFA Acceptance]
     An NFA \textit{accepts} an input string if it is able to reach a final state upon consuming the input string.
 \end{definition}
+
+\subsection{DFA versus NFA}
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{@{} p{10em} p{10em} p{10em} @{}}
+        \toprule
+        Aspect & DFA & NFA \\
+        \midrule
+        For each input character 
+        & Definitive next state 
+        & Can either take $\epsilon$-transition or take which one of multiple possible transition. \\
+        Acceptance
+        & Ends in final state
+        & Has a path from start state to final state \\
+        Implementation 
+        & Table-driven
+        & Set of possible states \\
+        Execution
+        & Faster and less space needed
+        & Slower and more space needed \\
+        \bottomrule
+    \end{tabular}
+    \caption{DFA versus NFA}
+    \label{fig:dfa-vs-nfa}
+\end{figure}
