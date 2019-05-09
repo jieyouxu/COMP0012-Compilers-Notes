@@ -276,3 +276,27 @@ It is then necessary to disambiguate between different possible matches and only
 \begin{remark}
     Note that while \textit{searching} aims to find \textit{a} substring which matches the supplied regex, \textit{lexing} aims to find \textit{all} substrings which matches the supplied regex.
 \end{remark}
+
+\subsection{Deterministic Finite Automata}
+
+To recognize a \textit{regular expression}, one may use a \textit{Deterministic Finite Automata} (DFA).
+
+\begin{definition}[Deterministic Finite Automata (DFA)]
+    A \textit{Deterministic Finite Automata} (DFA) $M$ can be described via the 5-tuple
+    \begin{equation}
+        M = \langle 
+            \Sigma, 
+            \mathcal{Q}, 
+            \delta, q_0, 
+            \mathcal{F} 
+        \rangle
+    \end{equation}
+    Where
+    \begin{enumerate}
+        \item \textbf{Alphabet}: $\Sigma$ is the finite set of characters in the \textit{alphabet}.
+        \item \textbf{States}: $\mathcal{Q}$ is the finite set of \textit{states}.
+        \item \textbf{Transition Function}: $\delta \colon \mathcal{Q} \times \Sigma \to \mathcal{Q}$. This function transitions from one \textit{state} to another on a suitable input character.
+        \item \textbf{Start State}: $q_0 \in \mathcal{Q}$ is the \textit{start state}.
+        \item \textbf{Final States}: $\mathcal{F} \subseteq \mathcal{Q}$ is the set of \textit{final states}.
+    \end{enumerate}
+\end{definition}
