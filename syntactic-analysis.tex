@@ -38,7 +38,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
     \begin{equation*}
         X \to Y_1 \cdots Y_n
     \end{equation*}
-    Means that the non-terminal $X$ can be \textit{replaced} by $Y_1 \cdots Y_n$. Equivalently, the production right-hand side $Y_1 \cdots Y_n$ is \textit{produced} by or \textit{derived} from $X$.
+    Means that the non-terminal $X$ can be \textit{replaced} by $Y_1 \cdots Y_n$. Equivalently, the production right-hand side $Y_1 \cdots Y_n$ is \textit{produced} by $X$.
 \end{example}
 
 \subsubsection{Language of a Context-Free Grammar}
@@ -65,3 +65,57 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
     
     \textit{Terminals} are often \textit{lexemes} in the language. For example, the terminal \texttt{void} is a keyword lexeme in the C language.
 \end{remark}
+
+\subsection{Right Regular Grammar}
+
+\begin{definition}[Right-regular Grammar]
+    A \textit{Right-regular Grammar} $G$ is the 4-tuple
+    \begin{equation}
+        G = \langle
+            \mathcal{N},
+            \mathcal{T},
+            S,
+            \mathcal{R}
+        \rangle
+    \end{equation}
+    
+    And also satisfying three additional \textit{constraints}; given $A, B \in \mathcal{N}$ and $a \in \mathcal{T}$,
+    \begin{enumerate}
+        \item $A \to a$
+        \item $A \to aB$
+        \item $A \to \epsilon$
+    \end{enumerate}
+\end{definition}
+
+\begin{remark}
+    Note that a \textit{Left-regular Grammar} has the above definition with only one difference, in the second constraint, for
+    \begin{equation}
+        A \to Ba
+    \end{equation}
+
+    If left and right rules are mixed together, a linear grammar is generated which is context-free.
+\end{remark}
+
+\subsubsection{Chomsky Hierarchy}
+
+\begin{definition}[Chomsky Hierarchy]
+    The \textit{Chomsky Hierarchy} classifies different languages in increasing expressive power.
+    
+    \begin{figure}[H]
+        \centering
+        \begin{tabularx}{\textwidth}{@{} X X X X @{}}
+            \toprule
+            Expressiveness & Grammar & Production Constraint & Automata \\
+            \midrule
+            $\uparrow$ & Universal & $\alpha \to \beta$ & Turing \par Machine \\
+            \phantom{} & Context-Sensitive & $\alpha A \beta \to \alpha \delta \beta$ & Linear \par Bounded \par Automata \\
+            \phantom{} & Context-Free & $A \to \alpha$ & Push-Down \par Automata \\
+            $\downarrow$ & Regular (right) & $A \to a \mid aB \mid \epsilon$ & Deterministic \par Finite \par Automata \\
+            \bottomrule
+        \end{tabularx}
+        \caption{Chomsky Hierarchy}
+        \label{fig:chomsky-hierarachy}
+    \end{figure}
+\end{definition}
+
+

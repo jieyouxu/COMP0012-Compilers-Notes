@@ -1,8 +1,5 @@
 \section{Semantic Analysis}
 
-\begin{definition}[Symbol Table]
-    Symbol table contains binding information. I.e. association between identifiers and information such as their scope and type.
-\end{definition}
 
 \subsection{CHANGE ME}
 
@@ -28,11 +25,31 @@
     \label{fig:language-in-different-phases}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \begin{tikzpicture}
-        \node [phantomblock] (start) { \phantom{} };
-        
-    \end{tikzpicture}
-    
-\end{figure}
+
+\begin{definition}[Declaration]
+    Declaration is a syntactic construct that associates information with a name.
+\end{definition}
+
+
+\begin{definition}[Scope rules]
+    Scope rules of a language determine which declaration applies to a name when the name appears in the text of a program.
+\end{definition}
+
+
+\begin{definition}[Binding]
+    Binding is an association between two things, such as a name and the thing it represents.
+\end{definition}
+
+\begin{definition}[]
+    Scope rules of a language determine which declaration applies to a name when the name appears in the text of a program.
+\end{definition}
+
+
+
+
+
+
+
+\begin{definition}[Symbol Table]
+    Symbol table contains binding information. I.e. association between identifiers and information such as their scope and type.
+\end{definition}

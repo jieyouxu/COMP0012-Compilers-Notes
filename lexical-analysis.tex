@@ -637,11 +637,111 @@ It is also possible to convert from NFA to DFA as they have equivalent power.
     Note that $\epsilon(q) \ne \emptyset$ since the state $q$ is itself in its $\epsilon$ closure, that is $q \in \epsilon(q)$.
 \end{definition}
 
-% TODO
-% TODO: NFA -> DFA algorithm
-% TODO
-% TODO
-% TODO
+\begin{definition}[NFA to DFA High Level Algorithm]
+    The target is to convert from
+    \begin{equation}
+        NFA = \langle
+            \Sigma,
+            \mathcal{Q}_N,
+            \delta_N,
+            s_N,
+            \mathcal{F}_N
+        \rangle \implies
+        \langle
+            \Sigma,
+            \mathcal{Q}_D,
+            \delta_D,
+            s_D,
+            \mathcal{F}_D
+        \rangle = DFA
+    \end{equation}
+    
+    Where
+    \begin{equation}
+        s_D \equiv \epsilon(s_N)
+    \end{equation}
+    
+    For each DFA state $q_D \in \mathcal{Q}_D$, add the transition
+    \begin{equation}
+        q_D \times a \to T \subseteq \mathcal{Q}_N
+    \end{equation}
+    To $\delta_D$ if there exists a state $s$ where $T$ is
+    \begin{equation}
+        T = \epsilon(\delta_N (s, a))
+    \end{equation}
+    
+    If some $q_D \in \mathcal{Q}_D$ contains one of the NFA's final states in $\mathcal{F}_N$, then mark $q_D$ as final as well, that is $q_D \in \mathcal{F}_D$.
+\end{definition}
+
+\begin{definition}[NFA to DFA: addTransition]
+    To compute the \textit{transitions} between the DFA states, the procedure \texttt{addTransition} can be used on
+    \begin{equation}
+        q_D \in \mathcal{Q}_D \subseteq \Pow{\mathcal{Q}_N}
+    \end{equation}
+    
+    Then \texttt{addTransition} has the signature
+    \begin{equation}
+        \mathtt{addTransition} \colon \mathcal{Q}_D \times \Sigma \to \mathcal{Q}_D \times \delta_D
+    \end{equation}
+    
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Procedure{addTransition}{$\langle q_D$, $a \rangle$}
+                \State $q_D^\prime \gets \emptyset$
+                \ForAll{$q_N \in q_D$}
+                    \State $q_D^\prime \gets q_D^\prime \cup \epsilon(\delta_N(q_N, a))$
+                \EndFor
+                \State $\delta_D \gets \set{q_D \times a \to q_D^\prime}$
+                \State \Return $\langle q_D^\prime, \delta_D \rangle$
+            \EndProcedure
+        \end{algorithmic}
+        \caption{Compute transitions $\delta_D$ for a DFA state $q_D$ given input $a$}
+        \label{algo:nfa-dfa-add-transition}
+    \end{algorithm}
+\end{definition}
+
+\begin{definition}[NFA to DFA: Conversion Algorithm]
+    Then to convert from a NFA to DFA:
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Procedure{convertNfaToDfa}{$
+                \langle
+                    \Sigma,
+                    \mathcal{Q}_N,
+                    \delta_N,
+                    s_N,
+                    \mathcal{F}_N
+                \rangle
+            $}
+                \State $s_D \gets \epsilon(s_N)$
+                \State $\delta_D \gets \emptyset$
+                \State $\mathcal{Q}_D \gets \set{s_D}$
+                \State \Call{WC.enqueue}{$s_D$} \Comment{$\mathrm{WC}$ is the workset.}
+                \While{$\neg$ \Call{WC.isEmpty}{\null}}
+                    \State $q_D \gets \Call{WC.dequeue}{\null}$
+                    \ForAll{$a \in \Sigma$}
+                        \State $\langle q_D^\prime, \delta_D^\prime \rangle \gets \Call{addTransition}{q_D, a}$
+                        \State $\delta_D \gets \delta_D \cup \set{\delta_D^\prime}$
+                        \If{$q_d^\prime \not\in \mathcal{Q}_D$}
+                            \State \Call{WC.enqueue}{$q_D^\prime$}
+                        \EndIf
+                        \State $\mathcal{Q}_D \gets \mathcal{Q}_D \cup \set{q_D^\prime}$
+                    \EndFor
+                \EndWhile
+                \State $\mathcal{F}_D \gets \set{x \in \mathcal{Q}_D \given x \cap \mathcal{F}_N \ne \emptyset}$
+                \State \Return $\langle
+                    \Sigma,
+                    \mathcal{Q}_D,
+                    \delta_D,
+                    s_D,
+                    \mathcal{F}_D
+                \rangle$
+            \EndProcedure
+        \end{algorithmic}
+        \caption{Convert NFA to DFA.}
+        \label{algo:nfa-to-dfa}
+    \end{algorithm}
+\end{definition}
 
 \subsection{Finite State Transducers}
 
