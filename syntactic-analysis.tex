@@ -79,7 +79,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
         \rangle
     \end{equation}
     
-    And also satisfying three additional \textit{constraints}; given $A, B \in \mathcal{N}$ and $a \in \mathcal{T}$,
+    And also satisfying three additional \textit{constraints}; given $A, B \in \mathcal{N}$ and $a \in \mathcal{T}$, and given $B$ is \textit{right-regular},
     \begin{enumerate}
         \item $A \to a$
         \item $A \to aB$
@@ -88,7 +88,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
 \end{definition}
 
 \begin{remark}
-    Note that a \textit{Left-regular Grammar} has the above definition with only one difference, in the second constraint, for
+    Note that a \textit{Left-regular Grammar} has the above definition with only one difference, in the second constraint; given $A, B \in \mathcal{N}$ and $B$ is \textit{left-regular},
     \begin{equation}
         A \to Ba
     \end{equation}
@@ -96,7 +96,82 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
     If left and right rules are mixed together, a linear grammar is generated which is context-free.
 \end{remark}
 
-\subsubsection{Chomsky Hierarchy}
+\subsubsection{Derivations}
+
+\begin{definition}[Derivation]
+    A \textit{derivation} is a sequence of \textit{sential forms} resulting from repeated applications of some \textit{production rule} beginning from $S$, replacing \textit{non-terminals} with their respective \textit{productions}.
+\end{definition}
+
+\begin{example}
+    For instance,
+    \begin{align*}
+        S &\to X_1 \cdots X_a \cdots X_b \cdots \\
+          &\to X_1 \cdots Y_c \cdots X_b \cdots \\
+          &\to \cdots \\
+          &\to Y_1 \cdots Y_m \\
+          &\to \cdots \\
+          &\to \alpha_1 \cdots \alpha_n \\
+    \end{align*}
+    
+    The intermediate strings with mixed terminals and non-terminals are the \textit{sentential forms}.
+    
+    The last derivation with $S \xRightarrow{\ast} \alpha_1 \cdots \alpha_n$ with each $\alpha_1, \dots, \alpha_n \in \mathcal{T}$ being terminals is called a \textit{sentence}.
+\end{example}
+
+\begin{definition}[Sentential Form]
+    A \textit{sentential form} $\alpha$ refers to the \textit{start symbol} $S$ or any strings of \textit{terminals} and \textit{non-terminals} $(\mathcal{N} \cup \mathcal{T})^\ast$ that can be \textit{derived} from $S$.
+    \begin{equation}
+        \alpha = (\mathcal{N} \cup \mathcal{T})^\ast
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Sentence]
+    A \textit{sentence} $\beta$ refers to a string of only \textit{terminals}, usually the last step in a sequence of \textit{derivations}.
+    \begin{equation}
+        \beta = \mathcal{T}^\ast
+    \end{equation}
+\end{definition}
+
+\subsection{Parse Trees}
+
+\begin{definition}[Parse Tree]
+    A \textit{parse tree} illustrates a \textit{derivation}.
+    \begin{enumerate}
+        \item Start symbol $S$ is the \textit{root} of the tree.
+        \item For production $X \to Y_1 \cdots Y_n$, create a \textit{node} with \textit{key} $X$ and \textit{children} $Y_1, \dots, Y_n$.
+    \end{enumerate}
+    
+    \begin{figure}[H]
+        \centering
+        \fbox{
+        \begin{forest}
+            for tree={
+                draw=black,
+                edge={->},
+                edge from parent/.style={draw=black}
+            }
+            [$S$
+                [$X$
+                    [$Y_1$]
+                    [$\dots$]
+                    [$Y_n$]
+                ]
+            ]
+        \end{forest}
+        }
+        \caption{Generic Parse Tree. Note root $S$ is the start symbol and $X$ is an interior node of $S$ with children $Y_1, \dots, Y_n$.}
+        \label{fig:generic-parse-tree}
+    \end{figure}
+\end{definition}
+
+\begin{remark}
+    A \textit{parse tree} corresponds with a \textit{Context-Free Grammar} by having
+    \begin{equation}
+        % TODO
+    \end{equation}
+\end{remark}
+
+\subsection{Chomsky Hierarchy}
 
 \begin{definition}[Chomsky Hierarchy]
     The \textit{Chomsky Hierarchy} classifies different languages in increasing expressive power.
@@ -117,5 +192,3 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
         \label{fig:chomsky-hierarachy}
     \end{figure}
 \end{definition}
-
-

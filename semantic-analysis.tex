@@ -1,31 +1,39 @@
 \section{Semantic Analysis}
 
-
-\subsection{CHANGE ME}
+\subsection{Overview}
 
 \begin{figure}[H]
     \centering
     \fbox{
     \begin{tikzpicture}
-        \node [phantomblock] (start) { \phantom{} };
-        \node [block, below=1em of start] (lexer) {Lexical Analysis};
-        \node [phantomblock, right=0.5em of lexer] {Regular Language};
-        \node [block, below=1em of lexer] (parser) {Syntax Analysis};
-        \node [phantomblock, right=0.5em of parser] {Context-Free Language};
-        \node [block, below=1em of parser] (semantic) {Semantic Analysis};
-        \node [phantomblock, right=0.5em of semantic] {Contextual Language};
-        \node [phantomblock, below=1em of semantic] (end) {};
-        \draw [->] (start) -- (lexer);
-        \draw [->] (lexer) -- (parser);
-        \draw [->] (parser) -- (semantic);
-        \draw [->] (semantic) -- (end);
+        \node [phantomblock]                            (start)     { \phantom{} };
+        \node [block, below=1em of start]               (lexer)     {Lexical Analysis};
+        \node [phantomblock, right=0.5em of lexer]                  {Regular Language};
+        \node [block, below=1em of lexer]               (parser)    {Syntax Analysis};
+        \node [phantomblock, right=0.5em of parser]                 {Context-Free Language};
+        \node [block, below=1em of parser]              (semantic)  {Semantic Analysis};
+        \node [phantomblock, right=0.5em of semantic]               {Contextual Language};
+        \node [phantomblock, below=1em of semantic]     (end)       {};
+        \draw [->] (start)      -- (lexer);
+        \draw [->] (lexer)      -- (parser);
+        \draw [->] (parser)     -- (semantic);
+        \draw [->] (semantic)   -- (end);
     \end{tikzpicture}
     }
     \caption{Languages used for different phases}
     \label{fig:language-in-different-phases}
 \end{figure}
 
+\begin{itemize}
+    \item \textit{Semantics} (or \textit{context}) consists of \textit{scope} and \textit{type}.
+    
+    \item The reason why we cannot check \textit{semantics} in parsing phase is due to the limitation of Context-Free Grammar. \textit{Semantics}-checking requires surrounding context which Context-Free Grammar lacks.
+    
+    \item So the way to do semantics checking is to check outside the grammar and try to find contextual mistakes if there is any.
+\end{itemize}
 
+
+\subsection{Lexical/Static scope}
 \begin{definition}[Declaration]
     Declaration is a syntactic construct that associates information with a name.
 \end{definition}
@@ -40,16 +48,30 @@
     Binding is an association between two things, such as a name and the thing it represents.
 \end{definition}
 
-\begin{definition}[]
-    Scope rules of a language determine which declaration applies to a name when the name appears in the text of a program.
+\begin{definition}[Scope of identifier]
+    The scope of a identifier is the part of a program in which it can be used to find its referred identity.
+\end{definition}
+
+\begin{definition}[\enquote{Hole} in a binding's scope]
+    A binding has a hole in its scope when it is hidden by a nested declaration of the same name.
+\end{definition}
+
+\begin{definition}[Qualifier]
+    In some languages, qualifier allows access to the outer meaning of an identifier. 
 \end{definition}
 
 
+\subsection{Dynamic scope}
 
-
-
-
-
-\begin{definition}[Symbol Table]
-    Symbol table contains binding information. I.e. association between identifiers and information such as their scope and type.
+\begin{definition}[Dynamic scope rules]
+    resolve the reference according to the most recent declaration w.r.t. the runtime flow of execution
 \end{definition}
+
+
+\subsection{Referencing Environment}
+
+\begin{definition}[Referencing environment]
+    Referencing environment is the sequence of scopes that is to be examined to find the current binding of a given name.
+\end{definition}
+
+

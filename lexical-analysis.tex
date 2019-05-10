@@ -743,6 +743,27 @@ It is also possible to convert from NFA to DFA as they have equivalent power.
     \end{algorithm}
 \end{definition}
 
+% TODO: Add NFA -> DFA conversion example
+
+\subsubsection{DFA Implementation}
+
+\begin{definition}[Table-driven DFA]
+    A DFA can be implemented with a 2D table $T[\mathcal{Q}, \Sigma]$. The two dimensions are for
+    \begin{enumerate}
+        \item Set of states $\mathcal{Q}$.
+        \item Alphabet $\Sigma$.
+    \end{enumerate}
+    
+    Transitions of the form $s_i \xrightarrow{a} s_j$ corresponds to the table entry
+    \begin{equation}
+        T[i, a] = j
+    \end{equation}
+    
+    When the DFA is in state $s_i$, upon reading input character $a$, it is then trivial to find the next state $s_j = T[i, a]$.
+\end{definition}
+
+% TODO: Add DFA -> minified DFA
+
 \subsection{Finite State Transducers}
 
 \begin{definition}
