@@ -310,7 +310,171 @@ int main(void)
 \end{definition}
 
 \begin{remark}
-    TODO
+    \textit{Static} scoping versus \textit{dynamic} scoping can be analogous to \textit{spatial} scoping versus \textit{temporal} scoping:
+    \begin{itemize}
+        \item \textit{Static} scoping looks for the lexically-closest declaration.
+        \item \textit{Dynamic} scoping looks for the most recent declaration with regard to the run time flow of execution.
+    \end{itemize}
 \end{remark}
+
+\subsection{Referencing Environment}
+
+\begin{definition}[Referencing Environment]
+    The sequence of scopes which needs to be examined in order for the current binding of a given identifier to be found is the \textit{referencing environment}.
+\end{definition}
+
+\begin{definition}[Shallow Binding (Late Binding, Dynamic Binding)]
+    \textit{Shallow binding} refers to delaying the creation of the reference environment until a routine is called.
+\end{definition}
+
+\begin{definition}[Deep Binding (Static Binding, Early Binding)]
+    \textit{Deep binding} refers to creating the reference environment upon making the first reference.
+\end{definition}
+
+\subsection{Symbol Table}
+
+\begin{definition}[Symbol Table]
+    A \textit{Symbol Table} stores binding information, helping to enforce scoping rules.
+\end{definition}
+
+\begin{example}
+    Given the Java method
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}{\textwidth}
+            \centering
+            \begin{minted}{java}
+public boolean foo(int n, int m)
+{
+    boolean tmp;
+    if (n < m) tmp = true;
+    else tmp = false;
+    return tmp;
+}
+            \end{minted}
+            \caption{Java method}
+        \end{subfigure}
+        \begin{subfigure}{\textwidth}
+            \centering
+            \begin{tabular}{@{} c c c c @{}}
+                \toprule
+                Identifier & Kind & Type & Attributes \\
+                \midrule
+                \texttt{foo} & method & $\texttt{int} \times \texttt{int} \to \texttt{boolean}$ & $\dots$ \\
+                \texttt{n} & parameter & $\texttt{int}$ & $\dots$ \\
+                \texttt{m} & parameter & $\texttt{int}$ & $\dots$ \\
+                \texttt{tmp} & local variable & $\texttt{boolean}$ & $\dots$ \\
+                \bottomrule
+            \end{tabular}
+            \caption{Symbol table}
+        \end{subfigure}
+        \caption{Java code and its corresponding symbol table}
+        \label{prog:symbol-table}
+    \end{figure}
+\end{example}
+
+\subsubsection{Checking for Undefined Variables}
+
+\begin{definition}[Abstract Syntax Tree and Symbol Table]
+    Adding entries and querying entries between the Abtract Syntax Tree (AST) ad the Symbol Table involves two operations
+    \begin{enumerate}
+        \item \textbf{Insert}. A new binding is added to the currently active Symbol Table when a new identifier is declared.
+        \item \textbf{Lookup}. Traverse AST hierarchy from the current scope upwards.
+    \end{enumerate}
+\end{definition}
+
+\begin{remark}
+    A single Symbol Table, however, is insufficient for
+    \begin{itemize}
+        \item Nested scoping, when inner bindings hide outer bindings.
+        \item Forward references, when identifiers can be referenced before they are declared.
+    \end{itemize}
+\end{remark}
+
+\begin{definition}[Symbol Table Hierarchy]
+    A \textit{hierarchy} of \textit{Symbol Tables} can be used to implement nested scoping.
+    
+    \begin{enumerate}
+        \item When entering a new nested scope, a new Symbol Table is created.
+        \item When exiting a nested scope, the Symbol Table for the nested scope is destroyed.
+    \end{enumerate}
+\end{definition}
+
+\begin{example}
+    For the Java code
+    \begin{figure}[H]
+        \centering
+        \begin{minted}{java}
+public class Circle
+{
+    double PI = 3.141;
+    
+    public double circumference(double radius)
+    {
+        double diameter = 2 * radius;
+        double circ = PI * diameter;
+        return circ;
+    }
+    
+    public double area(double radius)
+    {
+        double a = PI * radius * radius;
+        return a;
+    }
+}
+        \end{minted}
+        \caption{Nested scoping and hierarchy of Symbol Tables}
+        \label{prog:java-nested-scope}
+    \end{figure}
+    
+    There are three Symbol Tables
+    \begin{align*}
+        \sigma_0 &= \set{
+            \mathtt{PI} \mapsto \mathtt{double},
+            \mathtt{circumference} \mapsto \mathtt{double} \to \mathtt{double},
+            \mathtt{area} \mapsto \mathtt{double} \to \mathtt{double}
+        } \\
+        \sigma_1 &= \sigma_0 \cup \set{
+            \mathtt{diameter} \mapsto \mathtt{double},
+            \mathtt{circ} \mapsto \mathtt{double}
+        } \\
+        \sigma_2 &= \sigma_0 \cup \set{
+            \mathtt{a} \mapsto \mathtt{double}
+        }
+    \end{align*}
+    
+    Note that
+    \begin{figure}[H]
+        \centering
+        \begin{forest}
+            [$\sigma_0$
+                [$\sigma_1$]
+                [$\sigma_2$]
+            ]
+        \end{forest}
+        \caption{Hierarchical Symbol Table}
+        \label{fig:hierarchical-symbol-table}
+    \end{figure}
+\end{example}
+
+\subsubsection{Finding Active Declaration of Identifier in Symbol Table Hierarchy}
+
+Finding the active declaration of identifier in Symbol Table involves
+\begin{itemize}
+    \item Being from current scope.
+    \item Keep going up the hierarchy until the identifier is found.
+    \item Never traverse downwards.
+    \item If the identifier is not found even at the root of the hierarchy, the identifier is being used without being defined, which is an error.
+\end{itemize}
+
+\begin{remark}
+    Hierarchical Symbol Tables also have the benefit of resolving name collisions -- the deepest nested scope with the identifier takes precedence.
+\end{remark}
+
+\subsubsection{Symbol Table Implementation}
+
+A symbol table could be implemented via a \textit{Hash Table}, given that the \textit{hashing function} has good spread and minimal primary or secondary clustering.
+
+To visit the hierarchical Abstract Syntax Tree, one may utilize the \textit{Visitor} design pattern, which decouples the tree's structural representation from any algorithms traversing it.
 
 % TODO
