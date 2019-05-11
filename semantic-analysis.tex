@@ -24,33 +24,191 @@
     \label{fig:language-in-different-phases}
 \end{figure}
 
+\begin{remark}
+    Up to this point, recall that
+    \begin{itemize}
+        \item \textit{Lexers} accept \textit{regular} grammar (\textit{Regex}).
+        \item \textit{Parsers} accept \textit{context-free} grammar (\textit{CFG}).
+        \item But programs are \textit{not context-free}.
+    \end{itemize}
+    
+    That is,
+    \begin{itemize}
+        \item Programs which are \textit{syntactically correct} are indeed \textit{context-free}.
+        \item But being \textit{syntactically correct} does not guarantee that a program can correctly compile -- the program must also be \textit{semantically correct}.
+    \end{itemize}
+    
+    Hence, there exists an important distinction between \textit{Context-Free Grammars} (CFG) and \textit{Context-Sensitive Grammar} (CSG):
+    
+    \begin{tabular}{@{} |p{0.8\textwidth}}
+        The \textit{context} is \textit{not} retained in \textit{Context-Free Grammar}, allowing programs that are \textit{syntactically correct} but make no \textit{semantic} sense. Additionally, the \textit{scope} of variables are not checked.
+    \end{tabular}
+\end{remark}
+
+\begin{example}
+    For example, given the short method
+    \begin{figure}[H]
+        \centering
+        \begin{minted}{java}
+            public void methodOne()
+            {
+                int x = 2;
+                System.out.println(x.getDate());
+                y++;
+                int y;
+                return x;
+            }
+        \end{minted}
+        \caption{A program that is synatically correct but semantically wrong}
+        \label{prog:syntactically-correct-semantically-wrong}
+    \end{figure}
+    
+    The program is syntactically valid. However, there are multiple semantic errors:
+    \begin{itemize}
+        \item \texttt{x} is an integer, but an attempt was made to call \texttt{getDate()} on \texttt{x}.
+        \item \texttt{y} is used before being declared.
+        \item \texttt{methodOne} is declared to have no return value. However, \texttt{x} is returned in the last statement.
+    \end{itemize}
+\end{example}
+
+\subsection{Context-Sensitive Grammar}
+
+\begin{definition}[Context-Sensitive Grammar (CSG)]
+    The \textit{Context-Sensitive Grammar} $G$ can be described by the 4-tuple
+    \begin{equation}
+        G = \langle
+            \mathcal{N},
+            \mathcal{T},
+            \mathcal{R},
+            S
+        \rangle
+    \end{equation}
+    
+    Where
+    \begin{enumerate}
+        \item \textbf{Non-terminals}: $\mathcal{N}$.
+        \item \textbf{Terminals}: $\mathcal{T}$.
+        \item \textbf{Production Rules}: $\mathcal{R}$.
+        \item \textbf{Start Symbol}: $S$.
+    \end{enumerate}
+    
+    The \textit{context-sensitive} property requires that
+    \begin{equation}
+        \Forall r \in \mathcal{R} \colon r = \alpha A \beta \to \alpha \gamma \beta
+    \end{equation}
+    
+    That each production rule are of such form, where
+    \begin{itemize}
+        \item $A \in \mathcal{N}$ is a \textit{non-terminal}.
+        \item $\alpha, \beta \in (\mathcal{N} \cup \mathcal{T})^\ast$ are strings of \textit{non-terminals} and \textit{terminals}.
+        \item $\gamma \in (\mathcal{N} \cup \mathcal{T})^+$ is a \textit{non-empty} string of \textit{non-terminals} and \textit{terminals}.
+        \begin{equation}
+            \gamma \ne \emptyset
+        \end{equation}
+    \end{itemize}
+\end{definition}
+
+\subsection{Semantic Analysis}
+
+Check outside the grammar for contextual correctness instead of trying to implement constraints within the language, for aspects such as
 \begin{itemize}
-    \item \textit{Semantics} (or \textit{context}) consists of \textit{scope} and \textit{type}.
-    
-    \item The reason why we cannot check \textit{semantics} in parsing phase is due to the limitation of Context-Free Grammar. \textit{Semantics}-checking requires surrounding context which Context-Free Grammar lacks.
-    
-    \item So the way to do semantics checking is to check outside the grammar and try to find contextual mistakes if there is any.
+    \item Undefined variables.
+    \item Type errors.
+    \item Scope errors.
+    \item Duplicate definitions.
+    \item Inheritance relationships.
 \end{itemize}
 
+\subsubsection{Contextual Constraints}
 
-\subsection{Lexical/Static scope}
+Important \textit{contextual constraints} include
+\begin{enumerate}[itemsep=4pt, parsep=4pt, topsep=8pt, partopsep=4pt]
+    \item \textbf{Scoping} rules:
+        Checking area of effect of declarations.
+    \item \textbf{Typing} rules: 
+        Checking expressions have valid types.
+\end{enumerate}
+
+\subsubsection{Semantic Analysis Sub-phases}
+
+Note that this list is \textit{non-exhaustive}.
+
+\begin{itemize}[itemsep=4pt, parsep=4pt, topsep=8pt, partopsep=4pt]
+    \item \textbf{Name Resolution}:
+        Apply scoping rules to correspond identifier reference to declaration.
+    \item \textbf{Type Checking}:
+        Apply typing rules to infer type of expressions, and verify that the inferred type is compatible with the expected type.
+\end{itemize}
+
+\subsection{Scoping Rules}
+
 \begin{definition}[Declaration]
-    Declaration is a syntactic construct that associates information with a name.
+    A \textit{declaration} associates information with an \textit{identifier}.
+    
+    There are two types of declarations:
+    \begin{itemize}[itemsep=4pt, parsep=4pt, topsep=8pt, partopsep=4pt]
+        \item \textbf{Explicit Declaration}. (In Java) 
+            \begin{minted}{java}
+                int i;
+            \end{minted}
+        \item \textbf{Implicit Declaration}. (In Fortran)
+            \begin{minted}{fortran}
+                    i;
+            \end{minted}
+            In Fortran, some identifiers \texttt{i}, \texttt{j}, ..., \texttt{n} are implicitly assumed to be integers, unless this feature is turned off.
+    \end{itemize}
+    
+    It is possible for the same identifier to have independent declarations in different parts of a program, differentiating via \textit{scoping rules}.
 \end{definition}
 
-
-\begin{definition}[Scope rules]
-    Scope rules of a language determine which declaration applies to a name when the name appears in the text of a program.
+\begin{definition}[Scope Rules]
+    \textit{Scoping rules} define which declaration an identifier resolves to in each part of the program.
 \end{definition}
 
+\begin{definition}[Scope]
+    The \textit{scope} of a declaration is the part of the program for which the declaration applies to.
+\end{definition}
+
+\subsubsection{Binding}
 
 \begin{definition}[Binding]
-    Binding is an association between two things, such as a name and the thing it represents.
+    A \textit{binding} is the association between an identifier and the thing it represents.
 \end{definition}
 
-\begin{definition}[Scope of identifier]
-    The scope of a identifier is the part of a program in which it can be used to find its referred identity.
-\end{definition}
+\begin{example}
+    Given the Java method
+    \begin{figure}[H]
+        \centering
+        \begin{minted}{java}
+        public boolean foo(int n, int m) {
+            boolean tmp;
+            if (n<m) tmp = true;
+            else tmp = false;
+            return tmp;
+        }
+        \end{minted}
+        \caption{A Java method}
+        \label{prog:example-java-binding}
+    \end{figure}
+    
+    Then its binding $\sigma_{\texttt{foo}}$ is
+    \begin{equation}
+        \sigma_{\texttt{foo}} = \left\lbrace
+            \texttt{foo} \mapsto \texttt{int} \times \texttt{int} \to \texttt{boolean},
+            \texttt{n} \mapsto \texttt{int},
+            \texttt{m} \mapsto \texttt{int},
+            \texttt{tmp} \mapsto \texttt{bool}
+        \right\rbrace
+    \end{equation}
+\end{example}
+
+\subsubsection{Static Scope}
+
+\subsubsection{Dynamic Scope}
+
+% TODO
+
+%%
 
 \begin{definition}[\enquote{Hole} in a binding's scope]
     A binding has a hole in its scope when it is hidden by a nested declaration of the same name.
@@ -64,9 +222,8 @@
 \subsection{Dynamic scope}
 
 \begin{definition}[Dynamic scope rules]
-    resolve the reference according to the most recent declaration w.r.t. the runtime flow of execution
+    resolve the reference according to the most recent declaration w.r.t. the run-time flow of execution
 \end{definition}
-
 
 \subsection{Referencing Environment}
 

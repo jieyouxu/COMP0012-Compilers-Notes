@@ -143,7 +143,6 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
     
     \begin{figure}[H]
         \centering
-        \fbox{
         \begin{forest}
             for tree={
                 draw=black,
@@ -158,7 +157,6 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
                 ]
             ]
         \end{forest}
-        }
         \caption{Generic Parse Tree. Note root $S$ is the start symbol and $X$ is an interior node of $S$ with children $Y_1, \dots, Y_n$.}
         \label{fig:generic-parse-tree}
     \end{figure}
@@ -166,10 +164,128 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
 
 \begin{remark}
     A \textit{parse tree} corresponds with a \textit{Context-Free Grammar} by having
-    \begin{equation}
-        % TODO
-    \end{equation}
+    \begin{itemize}
+        \item Terminals as \textit{leaves}.
+        \item Non-terminals as \textit{interior nodes}.
+    \end{itemize}
+    
+    \begin{figure}[H]
+        \centering
+        \begin{forest}
+            for tree={
+                draw=black,
+                edge={->},
+                edge from parent/.style={draw=black}
+            }
+            [$S$
+                [$\dots$
+                    [$\mathcal{N}$
+                        [$\mathcal{T}$]
+                        [$\dots$]
+                        [$\mathcal{T}$]
+                    ]
+                ]
+            ]
+        \end{forest}
+        \caption{Parse tree correspondence with CFG}
+        \label{fig:parse-tree-and-cfg}
+    \end{figure}
+    
+    \begin{itemize}
+        \item An \textit{in-order traversal} of the \textit{parse tree} yields the original input string.
+        \item The \textit{parse tree} contains the \textit{association} of \textit{operations} for which the input string does not.
+    \end{itemize}
 \end{remark}
+
+\subsection{Left-most and Right-most Derivations}
+
+\begin{definition}[Left-most Derivation]
+    The \textit{left-most derivation} occurs when the \textit{left-most non-terminal} is always expanded.
+\end{definition}
+
+\begin{definition}[Right-most Derivation]
+    The \textit{right-most derivation} occurs when the \textit{right-most non-terminal} is always expanded.
+\end{definition}
+
+\begin{example}
+    For a very simple grammar for addition and subtraction expressions
+    \begin{equation*}
+        \begin{matrix}
+            S &\to  & E + E \\
+              &\mid & E - E \\
+              &\mid & E \\
+            E &\to  & a \\
+              &\mid & b \\
+        \end{matrix}
+    \end{equation*}
+    
+    This grammar is \textit{ambiguous} because two parse trees can be produced for the input string
+    \begin{equation*}
+        a + b - a
+    \end{equation*}
+    
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{forest}
+                for tree={
+                    draw=black,
+                    edge={->},
+                    if n children=0{tier=terminal}{},
+                    s sep=10pt,
+                },
+                [$A$
+                    [$A$
+                        [$a$]
+                    ]
+                    [$+$]
+                    [$A$
+                        [$A$
+                            [$b$]
+                        ]
+                        [$-$]
+                        [$A$
+                            [$a$]
+                        ]
+                    ]
+                ]
+            \end{forest}
+            \caption{Left-most derivation}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{forest}
+                for tree={
+                    draw=black,
+                    edge={->},
+                    if n children=0{tier=terminal}{},
+                    s sep=10pt,
+                },
+                [$A$
+                    [$A$
+                        [$A$
+                            [$a$]
+                        ]
+                        [$+$]
+                        [$A$
+                            [$b$]
+                        ]
+                    ]
+                    [$-$]
+                    [$A$
+                        [$a$]
+                    ]
+                ]
+            \end{forest}
+            \caption{Right-most derivation}
+        \end{subfigure}
+        \caption{Ambiguous grammar with multiple valid parse trees}
+        \label{fig:left-most-right-most-ambiguous-grammar}
+    \end{figure}
+    
+    When the \textit{left-most} and \textit{right-most} derivations both produce the \textit{same} parse tree, then the grammar is \textit{unambiguous}.
+\end{example}
 
 \subsection{Chomsky Hierarchy}
 
@@ -192,3 +308,62 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
         \label{fig:chomsky-hierarachy}
     \end{figure}
 \end{definition}
+
+\subsection{Solutions to Resolve Ambiguity}
+
+\begin{enumerate}
+    \item \textbf{Hacking}: Rewrite the grammar to enforce the precedence.
+    \begin{example}
+        Simple grammar solution
+        \begin{equation*}
+            \begin{matrix}
+                E &\to  & E + E \\
+                  &\mid & E * E \\
+                  &\mid & ( E ) \\
+                  &\mid & id \\
+             \end{matrix}
+        \end{equation*}
+        converting to 
+        \begin{equation*}
+            \begin{matrix}
+                E &\to  & E' + E \\
+                  &\mid & E' \\
+                  \\
+                E'&\to  & (E) * E'\\
+                  &\mid & (E) \\
+                  &\mid & id * E' \\
+                  &\mid & id \\
+             \end{matrix}
+        \end{equation*}
+    \end{example}
+    \item \textbf{Unambiguous annotations}: \\
+    Using natural grammar but along with forced annotations (for example, precedence).
+    
+    \begin{example} A simple example\\
+    
+        \begin{BVerbatim}
+        left  + 
+        right * 
+        \end{BVerbatim}
+    \end{example}
+    
+    Where \\
+    
+    \begin{BVerbatim}
+    %left  -->  left associative
+    %right -->  right associative
+    \end{BVerbatim}
+        
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \node [phantomblock] (pre) {Precedence};
+            \node [phantomblock, right=0.3em of pre] (rm) {};
+            \node [block, above=0.5em of rm] (rt) {Last rule};
+            \node [block, below=0.5em of rm] (rb) {First rule};
+            \draw [->] (rb) -- (rt);
+        \end{tikzpicture}
+    \end{figure}
+\end{enumerate}
+
+
