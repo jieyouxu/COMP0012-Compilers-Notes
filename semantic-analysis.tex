@@ -135,7 +135,7 @@ Note that this list is \textit{non-exhaustive}.
 
 \begin{itemize}[itemsep=4pt, parsep=4pt, topsep=8pt, partopsep=4pt]
     \item \textbf{Name Resolution}:
-        Apply scoping rules to correspond identifier reference to declaration.
+        Apply scoping rules to correspond identifier to declaration.
     \item \textbf{Type Checking}:
         Apply typing rules to infer type of expressions, and verify that the inferred type is compatible with the expected type.
 \end{itemize}
@@ -161,7 +161,7 @@ Note that this list is \textit{non-exhaustive}.
     It is possible for the same identifier to have independent declarations in different parts of a program, differentiating via \textit{scoping rules}.
 \end{definition}
 
-\begin{definition}[Scope Rules]
+\begin{definition}[Scoping Rules]
     \textit{Scoping rules} define which declaration an identifier resolves to in each part of the program.
 \end{definition}
 
@@ -204,31 +204,113 @@ Note that this list is \textit{non-exhaustive}.
 
 \subsubsection{Static Scope}
 
-\subsubsection{Dynamic Scope}
+\begin{definition}[Static Scope (Lexical Scope)]
+    \textit{Static scope} is when scoping information is available at \textit{compile time} -- the scoping information is available within the source code.
+    
+    Usually, the \textit{most recent encounter} binds.
+\end{definition}
 
-% TODO
+\begin{definition}[Static Scope Design]
+    Two \textit{static scope} designs exist:
+    \begin{enumerate}
+        \item Global.
+        \item Local to function.
+    \end{enumerate}
+    
+    Allowing nested functions introduce further complications as each nested function can begin a new scope.
+\end{definition}
 
-%%
+\begin{definition}[Closest Nested Scope Rule]
+    The \textit{Closest Nested Scope} rule is defined as follows
+    \begin{itemize}
+        \item An identifier introduced in a declaration is known
+        \begin{itemize}
+            \item in the scope where the identifier is declared in, or
+            \item in each internal scope that is nested after the declaration,
+            \item \textit{unless} it is hidden by another declaration of the same identifier in one or more of the nested scope (known as \enquote{\textit{name shadowing}}).
+        \end{itemize}
+    \end{itemize}
+\end{definition}
 
-\begin{definition}[\enquote{Hole} in a binding's scope]
-    A binding has a hole in its scope when it is hidden by a nested declaration of the same name.
+\begin{example}
+    In the code fragment
+    \begin{figure}[H]
+        \centering
+        \begin{minted}{javascript}
+let x = 4;                  // Outermost scope L1
+if (x > 0)
+{                           // Inner scope L2
+    let x = 3;              // L2's x shadows / hides x from L1
+    if (x > 1)
+    {                       // Innermost scope L3
+        x = x + 1;          // L3's x modifies x from L2
+        print(x)            // => 4
+    }
+    
+    print(x);               // => 4 because L2's x modified in L3
+}       
+print(x);                   // => 4 L1's x
+        \end{minted}
+        \caption{Closest nested scope in effect}
+        \label{prog:closest-nested-scope-rule}
+    \end{figure}
+\end{example}
+
+\begin{definition}[Hole]
+    A \textit{hole} in the scope of a binding occurs when the declaration of an identifier is \textit{hidden} or \textit{shadowed} by a nested declaration of the same identifier.
+    
+    In figure \ref{prog:closest-nested-scope-rule}, binding of \texttt{x} in $L_1$ is hidden by the declaration of the same name in the nested scope $L_2$.
 \end{definition}
 
 \begin{definition}[Qualifier]
-    In some languages, qualifier allows access to the outer meaning of an identifier. 
+    Some programming languages allow references to declarations in outer scopes that are shadowed by providing \textit{qualifiers} or \textit{scope resolution operators}.
 \end{definition}
 
+\begin{example}
+    The \textit{scope resolution operator} $::$ is provided in C++
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{minted}{c++}
+#include <iostream>
+int main(void)
+{
+    int cout = 42;
+    cout << cout;
+}
+            \end{minted}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{minted}{c++}
+#include <iostream>
+int main(void)
+{
+    int cout = 42;
+    std::cout << cout;
+}
+            \end{minted}
+        \end{subfigure}
+        \caption{Scope resolution operator in C++}
+        \label{fig:cpp-scope-resolution-operator}
+    \end{figure}
+\end{example}
 
-\subsection{Dynamic scope}
+\subsubsection{Dynamic Scope}
 
-\begin{definition}[Dynamic scope rules]
-    resolve the reference according to the most recent declaration w.r.t. the run-time flow of execution
+\begin{definition}[Dynamic Scope]
+    \textit{Dynamic scope} refers to binding that is determined at run-time, depending on the flow of execution.
+    \begin{itemize}
+        \item Most recent declaration takes precedence.
+        \item Binding expires when execution flow leaves lexical scope.
+    \end{itemize}
+    
+    Generally execution flow cannot be predicted at compile time and so dynamic scope is usually implemented within \textit{interpreted} languages.
 \end{definition}
 
-\subsection{Referencing Environment}
+\begin{remark}
+    TODO
+\end{remark}
 
-\begin{definition}[Referencing environment]
-    Referencing environment is the sequence of scopes that is to be examined to find the current binding of a given name.
-\end{definition}
-
-
+% TODO
