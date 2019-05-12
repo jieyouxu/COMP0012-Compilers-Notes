@@ -542,7 +542,7 @@ The Symbol Table usually also includes type information
 \subsubsection{Type-Checking Rules}
 
 \begin{example}
-A type-checking rule could require that \textit{the type left-hand side of an assignment must have the same type of the right-hand side of the assignment}.
+A type-checking rule could require that \textit{the type of the left-hand side of an assignment must have the same type as the right-hand side of the assignment}.
     
 For a very simple expression \texttt{int a = 2 * 2;}, it fulfills the type-checking rule because
 \begin{figure}[H]
@@ -673,4 +673,754 @@ There are two steps to \textit{type-checking}
     \end{algorithm}
 \end{definition}
 
-% TODO
+\subsection{Intermediate Representation}
+
+\begin{definition}[Intermediate Representation (IR)]
+    \textit{Intermediate Representation} (IR) acts as an adapter between the \textit{source language} and the \textit{target language}. This helps to decouple the compiler's front-end and back-end, and allows optimization to be source language-agnostic.
+    
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \node [block] (ir) {Intermediate Representation (IR)};
+            \node [block, above left=2em of ir] (src-cpp) {C++};
+            \node [block, below left=2em of ir] (src-c) {C};
+            \node [block, above=1em of src-cpp] (src-java) {Java};
+            \node [block, below=1em of src-c] (src-js) {JavaScript};
+            \node [block, above right=2em of ir] (dest-mips) {MIPS};
+            \node [block, below right=2em of ir] (dest-darwin) {Darwin};
+            \node [block, above=1em of dest-mips] (dest-x86) {x86};
+            \node [block, below=1em of dest-darwin] (dest-pentium) {Pentium};
+            \draw [->] (src-cpp) -- (ir);
+            \draw [->] (src-c) -- (ir);
+            \draw [->] (src-java) -- (ir);
+            \draw [->] (src-js) -- (ir);
+            \draw [->] (ir) -- (dest-mips);
+            \draw [->] (ir) -- (dest-darwin);
+            \draw [->] (ir) -- (dest-x86);
+            \draw [->] (ir) -- (dest-pentium);
+            \draw [->] (ir) edge[loop above] node [midway, above] {Optimization} (ir);
+        \end{tikzpicture}
+        \caption{Intermediate representation between source language and destination language.}
+        \label{fig:intermediate-representation}
+    \end{figure}
+\end{definition}
+
+\begin{definition}[High-level IR vs Low-level IR]
+    \textit{High-level} IR and \textit{low-level} IR differs in the amount of source information they retain.
+    \begin{figure}[H]
+        \centering
+        \begin{tabularx}{\textwidth}{@{} X X @{}}
+            \toprule
+            High-level IR & Low-level IR \\
+            \midrule
+            Retains more source code information. Allows compiler to extract source code intention more easily. & Retains less source code information. Allows compiler to generate code for hardware platform more easily. \\
+            \bottomrule
+        \end{tabularx}
+        \caption{High-level IR vs Low-level IR}
+        \label{fig:high-level-ir-vs-low-level-ir}
+    \end{figure}
+\end{definition}
+
+\begin{definition}[Properties of Good IR]
+    A \textit{good IR} has the properties
+    \begin{itemize}
+        \item Accuracy.
+        \item Decoupled from source and target language.
+        \item Easy to produce.
+        \item Easy to translate.
+        \item Clear, unambiguous language constructs.
+        \item No convenience features.
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[IR Categories]
+    There exists three major categories of IR
+    \begin{figure}[H]
+        \centering
+        \begin{tabularx}{\textwidth}{@{} X X X @{}}
+            \toprule
+            Structural IR & Hybrid IR & Linear IR \\
+            \midrule
+            Graphically structured & Both graphical and linear code & Pseudo-machine code \\
+            Used heavily in transpilers and verification tools & & Different abstraction levels \\
+            Usually large & & Easier to rearrange \\
+            \midrule
+            e.g.: Trees, DAGs & e.g. Control-Flow Graph & e.g.: Three-Address Code, Stack Machine Code \\
+            \bottomrule
+        \end{tabularx}
+        \caption{Categories of Intermediate Representation}
+        \label{fig:ir-categories}
+    \end{figure}
+\end{definition}
+
+\subsubsection{Linear Intermediate Representation}
+
+\begin{definition}[Linear IR]
+    A \textit{Linear Intermediate Representation} (LIR) is an instruction set for an abstract machine.
+    
+    \begin{itemize}[topsep=4pt]
+        \item Intermediate between Decorated AST and Machine Code.
+        \item Allows language-agnostic optimizations.
+    \end{itemize}
+    
+    It is ideal for optimization since
+    \begin{itemize}[topsep=4pt]
+        \item Linear AST has a \textit{narrow interface} of limited instructions.
+        \item This allows optimizations, re-targeting and translating to become easier.
+    \end{itemize}
+    
+    Examples include
+    \begin{itemize}
+        \item GCC Gimple
+        \item LLVM IR
+        \item Java Bytecode
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Abstract Machines]
+    LIRs are instructions for \textit{abstract machines}; two types of abstract machines are
+    \begin{enumerate}
+        \item \textbf{Register Machines}.
+        \item \textbf{Stack Machines}.
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}[Register Machines]
+    A \textit{register-based abstract machine} uses \textit{identifier-based temporary variables} (which later gets mapped to real registers during register-selection phase).
+\end{definition}
+
+\begin{example}
+    A very well known example of register machine is MIPS, a corresponding register-based IR is \textit{Three-Address Code} (TAC).
+\end{example}
+
+\begin{definition}[Stack Machines]
+    A \textit{stack machine} performs all operations based on \textit{stack}. It has two memory regions
+    \begin{enumerate}
+        \item \textbf{Instruction Memory}: which contains IR code.
+        \item \textbf{Data Memory}: which stores values, referenced via id or address.
+    \end{enumerate}
+\end{definition}
+
+\begin{example}
+    \textit{Java Bytecode} is a stack-based IR which runs on the \textit{Java Virtual Machine}, a stack-based abstract machine.
+\end{example}
+
+\subsubsection{Register Machines and Three-Address Code}
+
+\begin{definition}[Three-Address Code]
+    \textit{Three-Address Code} (IR) is a register-based IR which has at most three addresses per instruction. Each instruction has the form
+    \begin{equation}
+        \mathrm{OP}\ a_{1}\ a_{2}\ a_{3}
+    \end{equation}
+    
+    Where $a_1, a_2, a_3$ are arguments to the operation. The number of operand registers may vary based on the arity of the operation.
+    
+    Note that compound expressions may have to be partitioned into small consecutive steps (unary, binary expressions) using temporary registers to hold intermediate values due to the instruction size constraint.
+\end{definition}
+
+\begin{definition}[Three-Address Code Statements]
+    Let us define a custom-flavoured Three-Address Code (TAC).
+    
+    \begin{sidewaystable}[H]
+        \centering
+        \setlength\tabcolsep{2.5pt}
+        \scriptsize
+        \begin{tabularx}{\textwidth}{c c c c c c c c c c c}
+            \toprule
+            \multicolumn{3}{c}{Binary} & & & & \multicolumn{3}{c}{Control Flow} & \\
+            Arithmetic 
+                & Logical 
+                & Comparisons 
+                & Unary 
+                & Copy 
+                & Array Access 
+                & Field Access
+                & Labelling
+                & Unconditional Jump
+                & Conditional Jump
+                & Function Calls
+                \\
+            \midrule
+            \texttt{ADD} 
+                & \texttt{AND} 
+                & \texttt{EQ}  
+                & \texttt{MINUS} 
+                & \texttt{a = b} 
+                & \texttt{a = b[i]} 
+                & \texttt{a = b.f} 
+                & \texttt{label L:}
+                & \texttt{jump L}
+                & \texttt{tjump a L}
+                & \texttt{param p}
+                \\
+            \texttt{SUB} 
+                & \texttt{OR}  
+                & \texttt{NEQ} 
+                & \texttt{NEG}   
+                &
+                & \texttt{a[i] = b}
+                & \texttt{a.f = b} 
+                &
+                &
+                & \texttt{fjump a L}
+                & \texttt{call f}
+                \\
+            \texttt{MUL} 
+                & \texttt{XOR} 
+                & \texttt{LE}  
+                & 
+                & 
+                &
+                &
+                &
+                &
+                &
+                & \texttt{a = call f}
+                \\
+            \texttt{DIV} 
+                &
+                & \texttt{LEQ} 
+                &                
+                &                
+                & 
+                & 
+                &
+                &
+                &
+                & \texttt{return}
+                \\
+            \texttt{MOD} 
+                &
+                & \texttt{GE}
+                & 
+                & 
+                &
+                &
+                &
+                &
+                &
+                & \texttt{return y}
+                \\
+            \phantom{} 
+                &
+                & \texttt{GEQ}
+                &
+                &
+                &
+                &
+                &
+                &
+                &
+                &
+                \\
+            \bottomrule
+        \end{tabularx}
+        \caption{Three-Address Code Instructions}
+        \label{fig:tac-instructions}
+    \end{sidewaystable}
+\end{definition}
+
+\begin{definition}[TAC Operands]
+    Each \textit{operand} in a TAC instruction can be
+    \begin{enumerate}
+        \item Program variables
+        \item Constants
+        \item Temporary Variables
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}[Temporary Variables]
+    \textit{Temporary variables} are new locations which are used to store intermediate values.
+\end{definition}
+
+\subsubsection{Translation}
+
+\begin{definition}[Translation]
+    Translation between languages requires dealing with \textit{nested constructs}. This derives the need for \textit{inductive}, \textit{template-based} translation
+    \begin{itemize}
+        \item Start from AST root node.
+        \item Define translation rules for each node type.
+        \item Recursively apply templates down AST.
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Translation Notation]
+    If $e$ is a high-level construct, then
+    \begin{itemize}
+        \item $T[e]$ is the sequence of  low-level translated instructions.
+        \item If $e$ is an \textit{expression}, then $e$ represents a \textit{value};
+        \begin{itemize}
+           \item $t = T[e]$ means the result of $T[e]$ is stored at $t$.
+        \end{itemize}
+        \item If $e$ is a \textit{variable}, then $t = T[e]$ is the \textit{copy instruction} $t = e$.
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Translating Expressions]
+    There are generic templates:
+    \begin{enumerate}
+        \item \textbf{Unary operation}.
+        
+            \begin{equation*}
+                t = T[\mathtt{OP}\ e]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{OP}$
+                            [$e$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        t_1 &= T[e] \\
+                        t &= \mathtt{OP}\ t_1 \\ 
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+        
+        \item \textbf{Binary operation}.
+        
+            \begin{equation*}
+                t = T[e_1 \mathtt{OP}\ e_2]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{OP}$
+                            [$e_1$]
+                            [$e_2$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        t_1 &= T[e_1] \\
+                        t_2 &= T[e_2] \\
+                        t &= t_1 \mathrm{OP}\ t_2 \\ 
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+        
+        \item \textbf{Short-circuiting} \texttt{OR}.
+        
+            \begin{equation*}
+                t = T[e_1 \mathtt{OR}\ e_2]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{OR}$
+                            [$e_1$]
+                            [$e_2$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        &t = T[e_1] \\ 
+                        &\mathtt{tjump}\ t\ \mathtt{END} \\
+                        &t = T[e_2] \\
+                        &\mathtt{label\ END} \\
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+        
+            Doing so allows us to avoid evaluating $e_2$ supposing $e_1$ is true since $\top \lor q \equiv t$. This is espeially beneficial if $e_2$ involves some expensive calculations or I/O operations.
+        
+        \item \textbf{Short-circuiting} \texttt{AND}.
+        
+            \begin{equation*}
+                t = T[e_1 \mathtt{AND}\ e_2]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{AND}$
+                            [$e_1$]
+                            [$e_2$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        &t = T[e_1] \\ 
+                        &\mathtt{fjump}\ t\ \mathrm{END} \\
+                        &t = T[e_2] \\
+                        &\mathtt{label\ END} \\
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+            
+            This can be done because $\bot \land q \equiv \bot$.
+        
+        \item \textbf{Array access}.
+        
+            \begin{equation*}
+                t = T[v[e]]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{array}$
+                            [$v$]
+                            [$e$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        &t_1 = T[e] \\ 
+                        &t = v[t_1] \\
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+        
+        \item \textbf{Field access}.
+        
+            \begin{equation*}
+                t = T[e_1\mathtt{.}e_2]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{.}$
+                            [$e_1$]
+                            [$e_2$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        &t_1 = T[e_1] \\ 
+                        &t_2 = T[e_2] \\
+                        &t = t_1.t_2 \\
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+        
+        \item \textbf{Statements list}.
+        
+            \begin{equation*}
+                T[s_1; s_2; \dots; s_n]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{seq}$
+                            [$s_1$]
+                            [$s_2$]
+                            [$\dots$]
+                            [$s_n$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        &T[s_1] \\
+                        &T[s_2] \\
+                        &\dots  \\
+                        &T[s_n] \\
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+        
+        \item \textbf{Variable assignment}.
+        
+            \begin{equation*}
+                T[v = e]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{variable-assign}$
+                            [$v$]
+                            [$e$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        &v = T[e] \\
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+            
+        \item \textbf{Array assignment}.
+        
+            \begin{equation*}
+                T[v[e_1] = e_2]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{array-assign}$
+                            [$v$]
+                            [$e_1$]
+                            [$e_2$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        t_1 &= T[e_1] \\
+                        t_2 &= T[e2_2] \\
+                        v[t_1] &= t_2 \\
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+        
+        \item \textbf{If-then}.
+        
+            \begin{equation*}
+                T[\mathtt{if}\ (e)\ \mathtt{then}\ s]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{if-then}$
+                            [$e$]
+                            [$s$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        &t_1 = T[e] \\
+                        &t_2 = \mathtt{NOT}\ t_1 \\
+                        &\mathtt{tjump}\ t_2\ \mathtt{END} \\
+                        &T[s] \\
+                        &\mathtt{label\ END} \\
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+        
+        \item \textbf{If-then-else}.
+        
+            \begin{equation*}
+                T[\mathtt{if}\ (e)\ \mathtt{then}\ s_1\ \mathtt{else}\ s_2]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{if-then-else}$
+                            [$e$]
+                            [$s_1$]
+                            [$s_2$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        &t_1 = T[e] \\
+                        &\mathtt{tjump}\ t_1\ \mathtt{LEFT} \\
+                        &T[s_2] \\
+                        &\mathtt{jump\ END} \\
+                        &\mathtt{label\ LEFT} \\
+                        &T[s_1] \\
+                        &\mathtt{label\ END} \\
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+        
+        \item \textbf{While}.
+        
+            \begin{equation*}
+                T[\mathtt{while}\ (e)\ \lbrace s \rbrace]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{while}$
+                            [$e$]
+                            [$s$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        &\mathtt{label\ TEST} \\
+                        &t_1 = T[e] \\
+                        &\mathtt{fjump}\ t_1\ \mathtt{END} \\
+                        &T[s] \\
+                        &\mathtt{jump\ TEST} \\
+                        &\mathtt{label\ END} \\
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+        
+        \item \textbf{Function call}.
+        
+            \begin{equation*}
+                T[f(e_1, e_2, \dots, e_n)]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{function-call}$
+                            [$e_1$]
+                            [$e_2$]
+                            [$\dots$]
+                            [$e_n$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        &\mathtt{param}\ T[e_1] \\
+                        &\mathtt{param}\ T[e_2] \\
+                        &\dots \\
+                        &\mathtt{param}\ T[e_n] \\
+                        &\mathtt{call}\ f \\
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+        
+        \item \textbf{Return statement}.
+        
+            \begin{equation*}
+                T[\mathtt{return}\ e]
+            \end{equation*}
+            
+            It is translated to
+            
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{forest}
+                        [$\mathtt{return}$
+                            [$e$]
+                        ]
+                    \end{forest}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \centering
+                    \begin{align*}
+                        &t = T[e] \\
+                        &\mathtt{return}\ t;
+                    \end{align*}
+                \end{subfigure}
+            \end{figure}
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}[TAC Recursive Translation]
+    With the previously defined templates in mind, it is then possible to recursively apply the templates in order to translate nested constructs.
+\end{definition}
+
+\begin{example}
+    Given the code
+    \begin{verbatim}
+if (c)
+{
+    if (d)
+    {
+        a = b
+    }
+}
+print(x)
+    \end{verbatim}
+    
+    Which generates the AST
+    \begin{figure}[H]
+        \centering
+        \begin{forest}
+            [block
+                [if-then
+                    [c]
+                    [if-then
+                        [d]
+                        [assign
+                            [a]
+                            [b]
+                        ]
+                    ]
+                ]
+                [call
+                    [print]
+                    [x]
+                ]
+            ]
+        \end{forest}
+    \end{figure}
+\end{example}
