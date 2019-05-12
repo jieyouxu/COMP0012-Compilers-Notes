@@ -477,4 +477,200 @@ A symbol table could be implemented via a \textit{Hash Table}, given that the \t
 
 To visit the hierarchical Abstract Syntax Tree, one may utilize the \textit{Visitor} design pattern, which decouples the tree's structural representation from any algorithms traversing it.
 
+\subsection{Type Checking}
+
+\begin{definition}[Type]
+    A \textit{type} refers to a set of \textit{values} with some \textit{operations} defined on it.
+\end{definition}
+
+\begin{definition}[Type System]
+    A \textit{type system} consists of \textit{type expressions} and corresponding \textit{type-checking rules}.
+\end{definition}
+
+\begin{definition}[Type Expression]
+    A \textit{type expression} is one of the possible types in a program.
+\end{definition}
+
+\begin{example}
+    For instance, a \textit{type expression} in Java could be
+    \begin{itemize}
+        \item \texttt{int},
+        \item \texttt{boolean},
+        \item or a user-defined type such as \texttt{Bag<Integer>}.
+    \end{itemize}
+\end{example}
+
+\begin{definition}[Type Rules]
+    \textit{Type rules} are semantic constraints for which program constructs must satisfy in order to successfully compile.
+\end{definition}
+
+\subsubsection{Type Expressions}
+
+\textit{Type Expressions} consists of \textit{primitive types} and \textit{compound types}.
+\begin{itemize}
+    \item \textbf{Primitive Types}
+    \begin{enumerate}
+        \item \texttt{int}
+        \item \texttt{double}
+        \item \texttt{boolean}
+        \item \texttt{long}
+        \item \texttt{float}
+        \item \texttt{double}
+        \item \texttt{char}
+        \item \texttt{short}
+    \end{enumerate}
+    \item \textbf{Compound Types} \\
+        \textit{Compound types} are constructed from combining primitive types. For example,
+        \begin{enumerate}
+            \item Pointer types. \texttt{char *}
+            \item Struct types. \texttt{struct point { int x; int y; };}
+            \item Array types. \texttt{char[]}
+            \item Generic types. \texttt{List<Integer>}
+        \end{enumerate}
+\end{itemize}
+
+\subsubsection{Type Information in Symbol Table}
+
+The Symbol Table usually also includes type information
+\begin{itemize}
+    \item Bindings between identifier and type.
+    \item Bindings between formal parameter and type.
+    \item Bindings between method name, parameters and return type.
+    \item Bindings between class name, class variables and method declarations.
+\end{itemize}
+
+\subsubsection{Type-Checking Rules}
+
+\begin{example}
+A type-checking rule could require that \textit{the type left-hand side of an assignment must have the same type of the right-hand side of the assignment}.
+    
+For a very simple expression \texttt{int a = 2 * 2;}, it fulfills the type-checking rule because
+\begin{figure}[H]
+    \centering
+    \begin{prooftree}
+        \hypo{ \Gamma \vdash \mathtt{int\ a} }
+        \infer1{ \Gamma \vdash \mathtt{a} \colon int }
+        \hypo{ \Gamma \vdash \mathtt{2} \colon int }
+        \infer1{ \Gamma \vdash \mathtt{2 * 2} \colon int }
+        \infer2{ \Gamma \vdash \mathtt{int\ a = 2 * 2;} \colon int }
+    \end{prooftree}
+    \caption{Assignment type-checking rule}
+    \label{fig:assignment-type-checking-rule}
+\end{figure}
+\end{example}
+
+\subsubsection{Type-Checking Implementation}
+
+There are two steps to \textit{type-checking}
+\begin{enumerate}
+    \item \textbf{Symbol Table Construction}.
+    \begin{itemize}
+        \item Visit AST.
+        \item Store type information in Symbol Table(s).
+    \end{itemize}
+    \item \textbf{Scope and Type Checks}.
+    \begin{itemize}
+        \item Visit AST and access Symbol Table(s).
+        \item Verify program conforms with scope and type rules.
+    \end{itemize}
+\end{enumerate}
+
+\begin{definition}[Types and Symbol Table Construction]
+    Each \textit{type expression} can be represented as a class, with the Symbol Table binding each identifier to a specific \textit{type object}. Semantic analysis can then convert \textit{type expressions} to corresponding \textit{type objects}.
+    
+    \begin{figure}[H]
+        \centering
+        \begin{forest}
+            for tree={
+                draw=black,
+                edge={->},
+                edge from parent/.style={draw=black}
+            }
+            [Type
+                [PrimitiveType
+                    [IntType
+                        [CharType]
+                        [BoolType]
+                    ]
+                    [FloatingPointType
+                        [FloatType]
+                        [DoubleType]
+                    ]
+                ]
+                [ReferenceType]
+            ]
+        \end{forest}
+        \caption{Type Objects}
+        \label{fig:type-objects}
+    \end{figure}
+    
+    Alternatively, each type can also be represented by a string with a predifined format.
+    \begin{figure}[H]
+        \centering
+        \begin{align*}
+            \mathtt{int} &\mapsto "\mathtt{I;}" \\
+            \mathtt{int[\ ]} &\mapsto "\mathtt{[I;}" \\
+        \end{align*}
+        \caption{Type String}
+        \label{fig:type-string}
+    \end{figure}
+\end{definition}
+
+\begin{definition}[Type Comparison Implementation]
+    With the two possible type implementations, \textit{type comparison} can also be implemented with
+    \begin{itemize}
+        \item Implement \texttt{T1.equals(T2)} object comparison method if types are implemented with objects.
+        \item String comparison if types are implemented with strings.
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Type Checking Implementation]
+    \textit{Type Checking} can be implemented via a Visitor to the AST hierarchy; type rules are checked during the recursive traversal.
+\end{definition}
+
+\subsubsection{Type Error Reporting}
+
+\begin{definition}[Type Error Handling]
+    When a \textit{type-checking error} is discovered during analysis, the error should be reported and the semantic analysis should continue.
+    
+    Correct types may have to be inferred to avoid \textit{cascading failures}.
+\end{definition}
+
+\subsubsection{Simple Semantic Analyzer}
+
+\begin{definition}[Simple Semantic Analyzer]
+    A simple semantic analyzer can be implemented via two phases
+    
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Procedure{DoSemanticAnalysis}{$Program$}
+                \ForAll{$DeclarativeRegion \in Program$}
+                    \State \Call{ProcessDeclarations}{$DeclarativeRegion$}
+                    \State \Call{ProcessStatements}{$DeclarativeRegion$}
+                \EndFor
+                \ForAll{$DeclarativeRegion \in Program$}
+                    \State \Call{InferTypes}{$DeclarativeRegion$}
+                    \State \Call{FindTypeErrors}{$DeclarativeRegion$}
+                \EndFor
+            \EndProcedure
+            \Procedure{ProcessDeclarations}{$DeclarativeRegion$}
+                \ForAll{$Declaration \in DeclarativeRegion$}
+                    \State \Call{SymbolTable.AddEntry}{$Declaration$}
+                    \If{ \Call{IsDuplicateDeclaration}{$Declaration$} }
+                        \State \Call{ReportTypeError}{$Declaration$}
+                    \EndIf
+                \EndFor
+            \EndProcedure
+            \Procedure{ProcessStatements}{$DeclarativeRegion$}
+                \ForAll{$Statement \in DeclarativeRegion$}
+                    \State \Call{FindUndeclaredVariables}{$Statement$}
+                    \State \Call{UpdateAstIdNodes}{SymbolTable}
+                \EndFor
+            \EndProcedure
+        \end{algorithmic}
+        \caption{Simple Semantic Analyzer}
+        \label{algo:simple-semantic-analyzer}
+    \end{algorithm}
+\end{definition}
+
 % TODO
