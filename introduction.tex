@@ -177,7 +177,9 @@ Validate the source code to have acceptable \textit{meaning}. Note that while th
     \centering
     \fbox{
     \begin{tikzpicture}[auto]
-        \node [dashedblock] (n1) { Source (\texttt{Stream<Char>}) };
+        \node [dashedblock] (n0) { Source Code };
+        \node [block, below=2em of n0] (n1) { Lexical Analysis (Lexer) };
+        \draw [thick, ->] (n0) -- (n1);
         \node [block, below=3em of n1] (n2) { Syntax Analysis (Parser) };
         \draw [thick, ->] (n1) -- (n2) node [midway, fill=white] { Token Stream };
         \node [block, left=2em of n2] (n3) { Error Handler };
@@ -237,7 +239,8 @@ Output the program in the target language (usually assembly).
     \centering
     \fbox{
     \begin{tikzpicture}[auto]
-        \node [dashedblock] (n1) { Source (\texttt{Stream<Char>}) };
+        \node [dashedblock] (n0) { Source Code };
+        \node [block, below=3em of n0] (n1) { Lexical Analysis (Lexer) };
         \node [block, below=3em of n1] (n2) { Syntax Analysis (Parser) };
         \draw [thick, ->] (n1) -- (n2) node [midway, fill=white] { Token Stream };
         \node [block, left=2em of n2] (n3) { Error Handler };
@@ -250,15 +253,16 @@ Output the program in the target language (usually assembly).
         \draw [thick, ->] (n2) -- (n5) node [midway, fill=white] { Abstract Syntax Tree (AST) };
         \draw [thick, <->, dashed] (n3) -- (n5);
         \draw [thick, <->, dashed] (n4) -- (n5);
-        \draw [thick, ->] (n5) -- (n6) node [midway, fill=white] { Decorated AST };
-        \node [block, below=2em of n5] (n6) { Optimizer };
+        \node [block, below=3em of n5] (n6) { Optimizer };
+        \draw [thick, ->] (n5) -- (n6) node [midway] { Decorated AST };
         \node [phantomblock, right=2em of n6] (n7) { IR };
         \draw [thick, ->] (n6) to [out=300,in=60] (n7);
         \draw [thick, ->] (n7) to [out=300,in=60] (n6);
-        \node [block, below=2em of n6] (n8) { Code Generator };
+        \node [block, below=3em of n6] (n8) { Code Generator };
         \draw [thick, ->] (n6) -- (n8) node [midway] { IR };
-        \node [dashedblock, below=2em of n8] (n9) { Machine Code };
+        \node [dashedblock, below=3em of n8] (n9) { Machine Code };
         \draw [thick, ->] (n8) -- (n9);
+        \draw [thick, ->] (n0) -- (n1) node [midway] { Character Stream };
     \end{tikzpicture}
     }
     \caption{All phases of a compiler}
