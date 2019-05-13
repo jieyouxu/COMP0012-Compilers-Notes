@@ -1403,24 +1403,46 @@ print(x)
     
     Which generates the AST
     \begin{figure}[H]
-        \centering
-        \begin{forest}
-            [block
-                [if-then
-                    [c]
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{forest}
+                [block
                     [if-then
-                        [d]
-                        [assign
-                            [a]
-                            [b]
+                        [c]
+                        [if-then
+                            [d]
+                            [assign
+                                [a]
+                                [b]
+                            ]
                         ]
                     ]
+                    [call
+                        [print]
+                        [x]
+                    ]
                 ]
-                [call
-                    [print]
-                    [x]
-                ]
-            ]
-        \end{forest}
+            \end{forest}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{align*}
+                &t_1 = T[c] \\
+                &\mathtt{tjump}\ t_1\ \mathtt{OUTER\_TRUE} \\
+                &\mathtt{param}\ x \\
+                &\mathtt{call}\ print \\
+                &\mathtt{jump}\ \mathtt{OUTER\_END} \\
+                &\mathtt{label\ OUTER\_TRUE} \\
+                &t_2 = T[d] \\
+                &\mathtt{tjump}\ t_2\ \mathtt{INNER\_TRUE} \\
+                &\mathtt{jump}\ \mathtt{INNER\_END} \\
+                &\mathtt{label\ INNER\_TRUE} \\
+                &t_3 = T[b] \\
+                &t_4 = T[a] \\
+                &t_4 = t_3 \\
+                &\mathtt{label\ INNER\_END} \\
+                &\mathtt{label\ OUTER\_END}
+            \end{align*}
+        \end{subfigure}
     \end{figure}
 \end{example}
