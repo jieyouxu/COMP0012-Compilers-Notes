@@ -365,16 +365,276 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
         \end{tikzpicture}
     \end{figure}
 \end{enumerate}
-\subsection{Left Factoring}
+
+\subsection{Top-Down Parsing}
+
+\begin{definition}[Top-Down Parsing]
+    Given an input string consisting of terminals
+    \begin{equation*}
+        t_1\ t_2\ \cdots\ t_n
+    \end{equation*}
+    
+    Then its \textit{parse tree} is constructed
+    \begin{itemize}
+        \item From \textit{top} to \textit{bottom}.
+        \item From \textit{left} to \textit{right}.
+    \end{itemize}
+\end{definition}
+
+\subsubsection{Recursive Descent Parsing}
+
+\begin{definition}[Parsing]
+    \textit{Parsing} aims to find the parse tree for a string in grammar $G$
+    \begin{equation}
+        t_1\ t_2\ \cdots\ t_n
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Recursive Descent Parsing]
+    \textit{Recursive Descent Parsing} tries to build the parse tree starting from the start symbol $S$ and trying all productions exhaustively.
+    \begin{itemize}
+        \item The \textit{fringe} of the parse tree is
+            \begin{equation}
+                t_1\ t_2\ \cdots\ t_k\ A\ \cdots
+            \end{equation}
+        \item The parser needs to \textit{backtrack} if the fringe does not match the $k$-length prefix of the string.
+        \item Try all productions for $A$.
+        \begin{itemize}
+            \item If there is a production $A \to BC$
+            \item Then the new fringe is
+                \begin{equation}
+                    t_1\ t_2\ \cdots\ t_k\ B\ C\ t_{k+1}\ \dots\ t_n
+                \end{equation}
+        \end{itemize}
+        \item Terminate when there are no more non-terminals remaining.
+    \end{itemize}
+\end{definition}
+
+\subsubsection{Limitations of Recursive Descent}
+
+\textit{Recursive Descent} does \textit{not} work when the grammar is \textit{left-recursive}.
+
+\begin{definition}[Left-recursive Grammar]
+    A \textit{left-recursive grammar} has a non-terminal $A$ which, for zero or more derivations, derives
+    \begin{equation}
+        S \to^{+} S\ \alpha
+    \end{equation}
+    For some $\alpha \in (\mathcal{N} \cup \mathcal{T})^\ast$. Recursive descent parsing \textit{diverges} on \textit{left-recursive} grammars.
+\end{definition}
+
+\begin{example}
+    Given a production
+    \begin{equation}
+        S \to S\ a
+    \end{equation}
+    
+    Then it is possible to keep on replacing $S$ in the right-hand side with the production yielding no fringe to match (because the start can always be the non-terminal):
+    \begin{align*}
+        S &\to S\ a \\
+        \phantom{} &\to S\ a\ a \\
+        \phantom{} &\to S\ a\ a\ a\ \cdots \\
+    \end{align*}
+\end{example}
+
+\subsubsection{Elimination of Left Recursion}
+
+\begin{definition}[Left Recursion Elimination]
+    Given a grammar $G$ which contains a \textit{left-recursive} production of non-terminal $A$
+    \begin{equation}
+        \begin{aligned}
+            A \to  &\ A\ \alpha_1 \\
+              \mid &\ \cdots \\
+              \mid &\ A\ \alpha_n \\
+              \mid &\ \beta_1 \\
+              \mid &\ \cdots \\
+              \mid &\ \beta_m
+        \end{aligned}
+    \end{equation}
+    Where $\alpha_i \in (\mathcal{N} \cup \mathcal{T})^+$ and $\beta_i \in ((\mathcal{N} - \set{A}) \cup \mathcal{T})^+$.
+    
+    Then this rule can be converted into a \textit{right-recursive} rule by introducing a new non-terminal $A\prime$ and rewriting the original rule to give
+    \begin{equation}
+        \begin{aligned}
+        A \to  &\ \beta_1\ A\prime \\
+          \mid &\ \cdots \\
+          \mid &\ \beta_m\ A\prime \\
+        A\prime \to  &\ \alpha_1\ A\prime \\
+                \mid &\ \cdots \\
+                \mid &\ \alpha_n\ A\prime \\
+                \mid &\ \epsilon
+        \end{aligned}
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Indirect Left Recursion Elimination]
+    Given some production rules
+    \begin{equation}
+        \begin{aligned}
+            S \to &\ A\ \alpha \mid \beta \\
+            A \to &\ S \beta
+        \end{aligned}
+    \end{equation}
+    
+    Then $S$ is \textit{left recursive} since
+    \begin{equation}
+        S \to^+ S\ \beta\ \alpha
+    \end{equation}
+    
+    This indirect left recursion can be eliminated by back-substituting $A$ into $S$ to give
+    \begin{equation}
+        S \to S\ \beta\ \alpha \mid \delta
+    \end{equation}
+    
+    Then perform the previous rewrite technique.
+\end{definition}
+
+\begin{definition}[Nullable Non-terminal]
+    A non-terminal $N$ is \textit{nullable} iff $N \to^+ \epsilon$.
+\end{definition}
+
+\begin{definition}[$\epsilon$-masked Left Recursion Elimination]
+    Given some production with the form
+    \begin{equation}
+        \begin{aligned}
+            S \to &\ Y\ S \mid q \\
+            Y \to &\ A\ x\ B \mid C\ c \mid c\ d \mid \epsilon
+        \end{aligned}
+    \end{equation}
+    
+    Since $Y \to^+ \epsilon$ is \textit{nullabe}, then $S$ is in fact \textit{left-recursive}. This left recursion can be eliminated by performing back-substitution, similar to the indirect recursion case, then perform the previous rewrite technique.
+    
+    Note that should the back-substitution step generate any rules of the form
+    \begin{equation}
+        Y \to Y
+    \end{equation}
+    Then that production can be simply discarded (it has no effect).
+    
+    Also note that such back-substitution may cause an exponential growth in the number of production rules.
+\end{definition}
+
+\begin{definition}[Generic Left Recursion Elimination]
+    With each left recursive type considered, it is possible to give a generic left recursion elimination procedure.
+    \begin{algorithm}
+        \begin{algorithmic}
+            \Procedure{EliminateLeftRecusion}{$G$}
+                \Repeat
+                    \State{\Call{EliminateUnreachableRules}{$G$}}
+                    \State{\Call{EliminateUselessProductions}{$G$}}
+                    \State{\Call{EliminateDirectLeftRecursionViaRewrite}{$G$}}
+                    \State{\Call{EliminateIndirectLeftRecursionViaBackSubstitution}{$G$}}
+                    \State{\Call{EliminateEpsilonMaskedLeftRecursionViaBackSubstitution}{$G$}}
+                \Until{\Call{NoEliminationApplies}{\null}}
+            \EndProcedure
+        \end{algorithmic}
+        \caption{Generic Left Recursion Elimination}
+        \label{prog:generic-left-recursion-elimination}
+    \end{algorithm}
+\end{definition}
+
+\subsubsection{Predictive Parsers}
+
+\begin{definition}[Predictive Parser]
+    Similar to \textit{recursive descent} parsers but with \textit{lookahead(s)} to choose the correct production. I.e. for some grammar $G$, when looking at
+    \begin{equation}
+        t_1\ t_2\ \cdots\ t_k\ B\ C\ t_{k+1}\ \cdots\ t_n
+    \end{equation}
+    
+    The terminals $t_{k+1}\ \cdots\ t_n$ may be considered to choose a production. 
+\end{definition}
+
+\begin{definition}[$LL(k)$ Grammars]
+    \textit{Predictive} parsers accept $LL(k)$ grammars, where $LL(k)$ denotes \textit{left-to-right} input scan, \textit{leftmost} derivation with $k$ tokens of \textit{lookahead.} Usually $LL(1)$ grammars are used in practice.
+\end{definition}
+
+\subsubsection{Parse Tables}
+
+\begin{definition}[Parse Tables]
+    Given a context-free grammar $G$, then its \textit{Parse Table} is a 2D table with the dimensions:
+    \begin{enumerate}
+        \item Current non-terminal production.
+        \item Next $k$ lookahead tokens.
+    \end{enumerate}
+    
+    Then each table entry $T[N, a]$ where $N \in \mathcal{N}, a \in \mathcal{T}$ contains a subset of productions which has the non-terminal head in the first dimension, i.e.
+    \begin{equation}
+        T[N, a] = \set{(N \to \alpha), (N \to \beta), \cdots}
+    \end{equation}
+\end{definition}
+
+\begin{definition}[$LL(1)$ Parse Table]
+    $LL(1)$ grammars imply that given a pair of non-terminal and lookahead token $(N, a)$ where $N \in \mathcal{N}, a \in \mathcal{T}$, there exists only \textit{one} production which can lead to a successful parse.
+    
+    That is, a $LL(1)$ parse table has two dimensions:
+    \begin{enumerate}
+        \item Current non-terminal.
+        \item Next lookahead token $k = 1$.
+    \end{enumerate}
+    
+    The restriction by $LL(1)$ grammars means that each table entry is restricted to contain only a single production, i.e.
+    \begin{equation}
+        T[N, a] = \set{ (N \to \alpha) }
+    \end{equation}
+    
+    Where
+    \begin{equation}
+        \left\lvert T[N, a] \right\rvert \equiv 1
+    \end{equation}
+\end{definition}
+
+\begin{remark}
+    Note that trash states may be implicitly denoted by empty cells, which do not violate the single-production-per-cell constraint for $LL(1)$ grammars.
+\end{remark}
+
+\subsubsection{Left Factoring}
+
+\begin{definition}[Converting to $LL(1)$ Grammar]
+    A grammar may have to be \textit{left-factored} into a $LL(1)$ grammar before it is able to be parsed via predictive parsing.
+\end{definition}
+
+\begin{example}
+    Two productions with the same lookahead token for the same non-terminal cause the grammar to be beyond $LL(1)$, e.g.
+    \begin{equation}
+        \begin{aligned}
+            T \to  &\ int \\
+              \mid &\ int * T \\
+        \end{aligned}
+    \end{equation}
+    
+    Since both productions begin with $int$, it is impossible for the $LL(1)$ predictive parse to choose which production is the correct one based on a single lookahead token.
+\end{example}
+
 \begin{definition}[Left Factoring]
-     \textit{Left Factoring} is the process to rewrite a grammar so that each rule
-      of each nonterminal has a unique prefix.
-      This is analogous to:
-      \begin{equation}
-          ax + ay = a * (x + y)
-      \end{equation}
-
-
+    \textit{Left Factoring} is the process to rewrite a grammar so that each production of each non-terminal has a unique prefix.
+    
+    This is analogous to factoring out a common prefix, i.e.
+    \begin{equation}
+        ax + ay = a * (x + y)
+    \end{equation}
+    
+    Given a non-terminal $N$ that needs to be left factored, and some $A, B \in (\mathcal{N} \cup \mathcal{T})^+$, supposing that $N$ has the form
+    \begin{equation}
+        \begin{aligned}
+            N \to  &\ A\ B_1 \\
+              \mid &\ A\ B_2 \\
+              \mid &\ \cdots \\
+              \mid &\ A\ B_n \\
+              \mid &\ \langle \text{rules not prefixed with\ } A \rangle
+        \end{aligned}
+    \end{equation}
+    
+    Then it can be left-factored by introducting a new non-terminal $N\prime$ and rewriting $N$ to the form
+    \begin{equation}
+        \begin{aligned}
+            N \to  &\ A\ A\prime \\
+              \mid &\ \langle \text{rules not prefixed with\ } A \rangle \\
+            A\prime \to  &\ B_1 \\
+                    \mid &\ B_2 \\
+                    \mid &\ \cdots \\
+                    \mid &\ B_n
+        \end{aligned}
+    \end{equation}
+    
+    Note that any $B_i$ can be $\epsilon$.
 \end{definition}
 
 
