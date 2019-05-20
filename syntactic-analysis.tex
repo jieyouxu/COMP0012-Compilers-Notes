@@ -515,7 +515,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
 \begin{definition}[Generic Left Recursion Elimination]
     With each left recursive type considered, it is possible to give a generic left recursion elimination procedure.
     \begin{algorithm}
-        \begin{algorithmic}
+        \begin{algorithmic}[1]
             \Procedure{EliminateLeftRecusion}{$G$}
                 \Repeat
                     \State{\Call{EliminateUnreachableRules}{$G$}}
@@ -637,4 +637,210 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
     Note that any $B_i$ can be $\epsilon$.
 \end{definition}
 
+\subsubsection{LL(1) Parsing}
 
+\begin{definition}[$LL(1)$ Parse Actions]
+    Given a $LL(1)$ parse table $T$
+    \begin{enumerate}
+        \item If $T[N, a] = N \to \beta$:
+        \begin{itemize}
+            \item $N$ is to be replaced by or expanded to $\beta$.
+        \end{itemize}
+        \item If $T[N, a] = \epsilon$:
+        \begin{itemize}
+            \item $N$ is to be discarded.
+        \end{itemize}
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}[Building $LL(1)$ Parse Table]
+    Given the parse is in some state considering
+    \begin{equation}
+        S \to^\ast \beta\ A\ \gamma
+    \end{equation}
+    Where $A$ is the non-terminal being considered and $b$ is the lookahead token.
+    
+    Then there exists two possibilities for the position of $b$:
+    \begin{enumerate}
+        \item $b \in \First{A}$: $b$ belongs to some expansion of $A$, that is, if $b$ can start a string derived from $\alpha$ from the production
+        \begin{equation}
+            A \to \alpha
+        \end{equation}
+        \item $b \in \Follow{A}$: $b$ does not belong to any expansion of $A$.
+        \begin{itemize}
+            \item $A \to^\ast \epsilon$ and $b \in \First{\gamma}$, in $S \to^\ast \beta\ A\ b\ \omega$ supposing $\gamma \to^\ast b\ \omega$.
+            \item Note that any of $A \to \alpha$ can be used if $\alpha \to^\ast \epsilon$, i.e. $\epsilon \in \First{A}$.
+        \end{itemize}
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}[First Set]
+    Given a grammar $G$ and a non-terminal $X \in \mathcal{N}$, then the \textit{First} set of $X$ is defined as
+    \begin{equation}
+        \First{X} \coloneqq \set{t \in \mathcal{T} \given X \to^+ t\ \alpha} \cup \set{\epsilon \given X \to^+ \epsilon}
+    \end{equation}
+    
+    Where $\alpha \in (\mathcal{N} \cup \mathcal{T})^\ast$.
+\end{definition}
+
+\begin{definition}[Computing First Sets]
+    Given a grammar $G = \langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$, with $\mathcal{T}_\epsilon \coloneq \mathcal{T} \cup \set{\epsilon}$, then the algorithm to compute the first set of its non-terminal $X \in \mathcal{N}$ is given as
+    \begin{algorithm}
+        \begin{algorithmic}[1]
+            \Procedure{ComputeFirstSet}{$\langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$, $X \in \mathcal{N}$}
+                \State $\Forall t \in \mathcal{T}_\epsilon \colon  \First{t} \gets \set{t}$
+                \State $\First{X} \gets \emptyset$
+                \ForAll{productions $P = X \to A_1\ \cdots\ A_n \in \mathcal{R}$}
+                    \ForEach{$A_i$}
+                        \State $\First{X} \gets \First{X} \cup (\First{A_i} - \set{\epsilon})$
+                        \If{$\epsilon \not\in \First{A_i}$}
+                            \State \Call{NextProduction}{\null}
+                        \EndIf
+                    \EndFor
+                    \State $\First{X} \gets \First{X} \cup \set{\epsilon}$ \Comment{Only if all $A_i \in P$ are nullable}
+                \EndFor
+                \State \Return{$\First{X}$}
+            \EndProcedure
+        \end{algorithmic}
+        \caption{Computing First Set}
+        \label{prog:compute-first-set}
+    \end{algorithm}
+\end{definition}
+
+\begin{definition}[Follow Sets]
+    Given some grammar $G$ and non-terminals $\mathcal{N}$, then the \textit{Follow} set of non-terminal $X$ is given by
+    \begin{equation}
+        \begin{split}
+            \Follow{X} \coloneqq &\ \set{ t \given Y \to \alpha\ X\ \beta \land t \in (\First{\beta} - \set{\epsilon}) } 
+            \cup \\ &\ \set{ t \given \beta \to^\ast \epsilon \land t \in \Follow{Y} }
+        \end{split}
+    \end{equation}
+    
+    Note that the non-terminal $X$ appearing on the right-hand side of the production rule of non-terminal $Y$. It is also required that $\Follow{X}$ is the minimum set, if in the process of calculating $\Follow{X}$ that $\Follow{X}$ appears on the right-hand side, i.e. if there is an intermediate step
+    \begin{equation}
+        \Follow{X} = \cdots \cup \Follow{X} \cup \cdots
+    \end{equation}
+    
+    Then the $\Follow{X}$ on the right-hand side is simply absorbed and has no effect.
+\end{definition}
+
+\begin{definition}[Computing Follow Sets]
+    Given a grammar $G = \langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$, with end-of-input symbol $\$$, then the algorithm to compute the follow set of its non-terminal $X \in \mathcal{N}$ is given as
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Procedure{ComputeFollowSet}{$\langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$, $X \in \mathcal{N}$}
+            \ForAll{non-terminals $N \in \mathcal{N}$}
+                \State $\First{N}$ \gets \Call{ComputeFirstSet}{$\langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$, $N$}
+            \EndFor
+            \State $\Follow{X} \gets \emptyset$
+            \State $\Follow{S} \gets \set{\$}$ \Comment{Starting non-terminal $S$}
+            \ForAll{productions $P = Y \to \cdots\ X\ A_1\ \cdots\ A_n \in \mathcal{R}$}
+                \ForEach{$A_i$}
+                    \State $\Follow{X} \gets \Follow{X} \cup (\First{A_i} - \set{\epsilon})$
+                    \If{$\epsilon \not\in \First{A_i}$}
+                        \State \Call{NextProduction}{\null}
+                    \EndIf
+                \EndFor
+                \State $\Follow{X} \gets \Follow{X} \cup \Follow{Y}$ \Comment{Iff all $A_i \in P$ is nullable}
+            \EndFor
+            \EndProcedure
+        \end{algorithmic}
+        \caption{Computing Follow Set}
+        \label{prog:compute-follow-set}
+    \end{algorithm}
+    
+    It should be noted that
+    \begin{itemize}
+        \item $\epsilon \not\in \Follow{X}$
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Building $LL(1)$ Parse Table Algorithm]
+    To construct a $LL(1)$ parse table $T$ for a given grammar $G$
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Procedure{BuildLL1ParseTable}{$G$}
+                \ForEach{production $A \to \alpha$}
+                    \ForEach{terminal $b \in \First{\alpha} - \set{\epsilon}$}
+                        \State $T[A, b] \gets \alpha$
+                    \EndFor
+                    \If{$\alpha \to^\ast \epsilon$}
+                        \ForEach{$b \in \Follow{A}$}
+                            \State $T[A, b] \gets \epsilon$
+                        \EndFor
+                    \EndIf
+                \EndFor
+            \EndProcedure
+        \end{algorithmic}
+        \caption{Building $LL(1)$ parse table}
+        \label{prog:build-ll(1)-parse-table}
+    \end{algorithm}
+\end{definition}
+
+\begin{remark}
+    A $LL(1)$ parse table has exactly one production per table cell. If there are multiple productions per table cell, then the grammar is $LL(1)$ because of any of the following reasons:
+    \begin{itemize}
+        \item $G$ is \textit{ambiguous}
+        \item $G$ is \textit{left recursive}
+        \item $G$ is not \textit{left factored}
+    \end{itemize}
+\end{remark}
+
+\begin{definition}[Using $LL(1)$ Parse Table]
+    A $LL(1)$ parse utilizes the $LL(1)$ parse table similar to that in recursive descent, but with differences in that
+    \begin{itemize}
+        \item For each \textit{non-terminal} $N$
+        \item Consider the lookahead token $a$
+        \item Choose production at
+            \begin{equation}
+                T[N, a]
+            \end{equation}
+    \end{itemize}
+    
+    The $LL(1)$ parser uses a \textit{stack} to record pending non-terminals
+    \begin{itemize}
+        \item \textit{Reject} if an error state is encountered.
+        \item \textit{Accept} if \textit{end-of-input} is reached.
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[$LL(1)$ Parsing Algorithm]
+    Given input stream of characters, with $\langle H\ rest \rangle$ denoting the top of the stack and the rest of the stack respectively, then the $LL(1)$ parsing algorithm is given by
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Procedure{ParseWithLL1}{$InputTokenStream$}
+                \State $I \gets InputTokenStream$
+                \State $stack \gets \langle S\ \$ \rangle$
+                \State $head \gets 0$
+                \Repeat
+                    \Switch{$\langle \tau\ rest \rangle$}
+                        \Comment{$\tau$ is the top of stack}
+                        \Case{$\tau \in \mathcal{N}$}
+                            \Comment{$\tau$ is a non-terminal}
+                            \If{$T[\tau, I[head]] \equiv Y_1\ \cdots\ Y_n$}
+                                \State $stack \gets \langle Y_1\ \cdots\ Y_n, rest \rangle$
+                            \Else
+                                \State \Call{ReportError}{$\tau$}
+                            \EndIf
+                            \State $\textbf{break}$
+                        \EndCase
+                        \Case{$\tau \in \mathcal{T}$}
+                            \Comment{$\tau$ is a terminal}
+                            \If{$\tau \equiv I[head]$}
+                                \State $stack \gets \langle rest \rangle$
+                                \State $head{+}{+}$
+                            \Else
+                                \State \Call{ReportError}{$\tau$}
+                            \EndIf
+                            \State $\textbf{break}$
+                        \EndCase
+                    \EndSwitch
+                \Until{$stack \equiv \langle \$ \rangle$}
+            \EndProcedure
+        \end{algorithmic}
+        \caption{$LL(1)$ Parsing Algorithm}
+        \label{prog:ll1-parsing-algorithm}
+    \end{algorithm}
+    
+    Note that the right-hand side of $\tau$, $Y_1\ \cdots\ Y_n$, is the production for which the $head$ selects.
+\end{definition}
