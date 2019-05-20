@@ -514,7 +514,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
 
 \begin{definition}[Generic Left Recursion Elimination]
     With each left recursive type considered, it is possible to give a generic left recursion elimination procedure.
-    \begin{algorithm}
+    \begin{algorithm}[H]
         \begin{algorithmic}[1]
             \Procedure{EliminateLeftRecusion}{$G$}
                 \Repeat
@@ -685,7 +685,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
 
 \begin{definition}[Computing First Sets]
     Given a grammar $G = \langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$, with $\mathcal{T}_\epsilon \coloneq \mathcal{T} \cup \set{\epsilon}$, then the algorithm to compute the first set of its non-terminal $X \in \mathcal{N}$ is given as
-    \begin{algorithm}
+    \begin{algorithm}[H]
         \begin{algorithmic}[1]
             \Procedure{ComputeFirstSet}{$\langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$, $X \in \mathcal{N}$}
                 \State $\Forall t \in \mathcal{T}_\epsilon \colon  \First{t} \gets \set{t}$
@@ -844,3 +844,5 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
     
     Note that the right-hand side of $\tau$, $Y_1\ \cdots\ Y_n$, is the production for which the $head$ selects.
 \end{definition}
+
+\subsection{Bottom-Up Parsing}
