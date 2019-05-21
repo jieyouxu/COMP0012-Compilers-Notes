@@ -4,3 +4,5 @@ Notes for COMP0012 Compilers:
 - Lexical Analysis
 - Syntactic Analysis
 - Semantic Analysis
+- Intermediate Representation
+- Optimization
