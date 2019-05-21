@@ -40,9 +40,9 @@
     
     Hence, there exists an important distinction between \textit{Context-Free Grammars} (CFG) and \textit{Context-Sensitive Grammar} (CSG):
     
-    \begin{tabular}{@{} |p{0.8\textwidth}}
-        The \textit{context} is \textit{not} retained in \textit{Context-Free Grammar}, allowing programs that are \textit{syntactically correct} but make no \textit{semantic} sense. Additionally, the \textit{scope} of variables are not checked.
-    \end{tabular}
+    \begin{itemize}
+        \item The \textit{context} is \textit{not} retained in \textit{Context-Free Grammar}, allowing programs that are \textit{syntactically correct} but make no \textit{semantic} sense. Additionally, the \textit{scope} of variables are not checked.
+    \end{itemize}
 \end{remark}
 
 \begin{example}
@@ -103,7 +103,7 @@
         \item $\alpha, \beta \in (\mathcal{N} \cup \mathcal{T})^\ast$ are strings of \textit{non-terminals} and \textit{terminals}.
         \item $\gamma \in (\mathcal{N} \cup \mathcal{T})^+$ is a \textit{non-empty} string of \textit{non-terminals} and \textit{terminals}.
         \begin{equation}
-            \gamma \ne \emptyset
+            \gamma \ne \varnothing
         \end{equation}
     \end{itemize}
 \end{definition}

@@ -75,3 +75,14 @@
 \algdef{SE}[CASE]{Case}{EndCase}[1]{\algorithmiccase\ #1}{\algorithmicend\ \algorithmiccase}%
 \algtext*{EndSwitch}%
 \algtext*{EndCase}%
+
+\DeclarePairedDelimiter{\oldnormaux}{\bracevert}{\bracevert}
+
+\NewDocumentCommand{\oldnorm}{som}{%
+  \IfBooleanTF{#1}
+    {\oldnormaux*{#3}}
+    {\IfNoValueTF{#2}
+       {\oldnormaux*{\vphantom{dq}#3}}
+       {\oldnormaux[#2]{#3}}%
+    }%
+}

@@ -83,7 +83,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
     \begin{enumerate}
         \item $A \to a$
         \item $A \to aB$
-        \item $A \to \epsilon$
+        \item $A \to \varepsilon$
     \end{enumerate}
 \end{definition}
 
@@ -301,7 +301,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
             $\uparrow$ & Universal & $\alpha \to \beta$ & Turing \par Machine \\
             \phantom{} & Context-Sensitive & $\alpha A \beta \to \alpha \delta \beta$ & Linear \par Bounded \par Automata \\
             \phantom{} & Context-Free & $A \to \alpha$ & Push-Down \par Automata \\
-            $\downarrow$ & Regular (right) & $A \to a \mid aB \mid \epsilon$ & Deterministic \par Finite \par Automata \\
+            $\downarrow$ & Regular (right) & $A \to a \mid aB \mid \varepsilon$ & Deterministic \par Finite \par Automata \\
             \bottomrule
         \end{tabularx}
         \caption{Chomsky Hierarchy}
@@ -461,7 +461,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
         A\prime \to  &\ \alpha_1\ A\prime \\
                 \mid &\ \cdots \\
                 \mid &\ \alpha_n\ A\prime \\
-                \mid &\ \epsilon
+                \mid &\ \varepsilon
         \end{aligned}
     \end{equation}
 \end{definition}
@@ -489,19 +489,19 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
 \end{definition}
 
 \begin{definition}[Nullable Non-terminal]
-    A non-terminal $N$ is \textit{nullable} iff $N \to^+ \epsilon$.
+    A non-terminal $N$ is \textit{nullable} iff $N \to^+ \varepsilon$.
 \end{definition}
 
-\begin{definition}[$\epsilon$-masked Left Recursion Elimination]
+\begin{definition}[$\varepsilon$-masked Left Recursion Elimination]
     Given some production with the form
     \begin{equation}
         \begin{aligned}
             S \to &\ Y\ S \mid q \\
-            Y \to &\ A\ x\ B \mid C\ c \mid c\ d \mid \epsilon
+            Y \to &\ A\ x\ B \mid C\ c \mid c\ d \mid \varepsilon
         \end{aligned}
     \end{equation}
     
-    Since $Y \to^+ \epsilon$ is \textit{nullabe}, then $S$ is in fact \textit{left-recursive}. This left recursion can be eliminated by performing back-substitution, similar to the indirect recursion case, then perform the previous rewrite technique.
+    Since $Y \to^+ \varepsilon$ is \textit{nullabe}, then $S$ is in fact \textit{left-recursive}. This left recursion can be eliminated by performing back-substitution, similar to the indirect recursion case, then perform the previous rewrite technique.
     
     Note that should the back-substitution step generate any rules of the form
     \begin{equation}
@@ -634,7 +634,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
         \end{aligned}
     \end{equation}
     
-    Note that any $B_i$ can be $\epsilon$.
+    Note that any $B_i$ can be $\varepsilon$.
 \end{definition}
 
 \subsubsection{LL(1) Parsing}
@@ -646,7 +646,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
         \begin{itemize}
             \item $N$ is to be replaced by or expanded to $\beta$.
         \end{itemize}
-        \item If $T[N, a] = \epsilon$:
+        \item If $T[N, a] = \varepsilon$:
         \begin{itemize}
             \item $N$ is to be discarded.
         \end{itemize}
@@ -668,8 +668,8 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
         \end{equation}
         \item $b \in \Follow{A}$: $b$ does not belong to any expansion of $A$.
         \begin{itemize}
-            \item $A \to^\ast \epsilon$ and $b \in \First{\gamma}$, in $S \to^\ast \beta\ A\ b\ \omega$ supposing $\gamma \to^\ast b\ \omega$.
-            \item Note that any of $A \to \alpha$ can be used if $\alpha \to^\ast \epsilon$, i.e. $\epsilon \in \First{A}$.
+            \item $A \to^\ast \varepsilon$ and $b \in \First{\gamma}$, in $S \to^\ast \beta\ A\ b\ \omega$ supposing $\gamma \to^\ast b\ \omega$.
+            \item Note that any of $A \to \alpha$ can be used if $\alpha \to^\ast \varepsilon$, i.e. $\varepsilon \in \First{A}$.
         \end{itemize}
     \end{enumerate}
 \end{definition}
@@ -677,27 +677,27 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
 \begin{definition}[First Set]
     Given a grammar $G$ and a non-terminal $X \in \mathcal{N}$, then the \textit{First} set of $X$ is defined as
     \begin{equation}
-        \First{X} \coloneqq \set{t \in \mathcal{T} \given X \to^+ t\ \alpha} \cup \set{\epsilon \given X \to^+ \epsilon}
+        \First{X} \coloneqq \set{t \in \mathcal{T} \given X \to^+ t\ \alpha} \cup \set{\varepsilon \given X \to^+ \varepsilon}
     \end{equation}
     
     Where $\alpha \in (\mathcal{N} \cup \mathcal{T})^\ast$.
 \end{definition}
 
 \begin{definition}[Computing First Sets]
-    Given a grammar $G = \langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$, with $\mathcal{T}_\epsilon \coloneq \mathcal{T} \cup \set{\epsilon}$, then the algorithm to compute the first set of its non-terminal $X \in \mathcal{N}$ is given as
+    Given a grammar $G = \langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$, with $\mathcal{T}_\varepsilon \coloneq \mathcal{T} \cup \set{\varepsilon}$, then the algorithm to compute the first set of its non-terminal $X \in \mathcal{N}$ is given as
     \begin{algorithm}[H]
         \begin{algorithmic}[1]
             \Procedure{ComputeFirstSet}{$\langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$, $X \in \mathcal{N}$}
-                \State $\Forall t \in \mathcal{T}_\epsilon \colon  \First{t} \gets \set{t}$
-                \State $\First{X} \gets \emptyset$
+                \State $\Forall t \in \mathcal{T}_\varepsilon \colon  \First{t} \gets \set{t}$
+                \State $\First{X} \gets \varnothing$
                 \ForAll{productions $P = X \to A_1\ \cdots\ A_n \in \mathcal{R}$}
                     \ForEach{$A_i$}
-                        \State $\First{X} \gets \First{X} \cup (\First{A_i} - \set{\epsilon})$
-                        \If{$\epsilon \not\in \First{A_i}$}
+                        \State $\First{X} \gets \First{X} \cup (\First{A_i} - \set{\varepsilon})$
+                        \If{$\varepsilon \not\in \First{A_i}$}
                             \State \Call{NextProduction}{\null}
                         \EndIf
                     \EndFor
-                    \State $\First{X} \gets \First{X} \cup \set{\epsilon}$ \Comment{Only if all $A_i \in P$ are nullable}
+                    \State $\First{X} \gets \First{X} \cup \set{\varepsilon}$ \Comment{Only if all $A_i \in P$ are nullable}
                 \EndFor
                 \State \Return{$\First{X}$}
             \EndProcedure
@@ -711,8 +711,8 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
     Given some grammar $G$ and non-terminals $\mathcal{N}$, then the \textit{Follow} set of non-terminal $X$ is given by
     \begin{equation}
         \begin{split}
-            \Follow{X} \coloneqq &\ \set{ t \given Y \to \alpha\ X\ \beta \land t \in (\First{\beta} - \set{\epsilon}) } 
-            \cup \\ &\ \set{ t \given \beta \to^\ast \epsilon \land t \in \Follow{Y} }
+            \Follow{X} \coloneqq &\ \set{ t \given Y \to \alpha\ X\ \beta \land t \in (\First{\beta} - \set{\varepsilon}) } 
+            \cup \\ &\ \set{ t \given \beta \to^\ast \varepsilon \land t \in \Follow{Y} }
         \end{split}
     \end{equation}
     
@@ -732,12 +732,12 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
             \ForAll{non-terminals $N \in \mathcal{N}$}
                 \State $\First{N}$ \gets \Call{ComputeFirstSet}{$\langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$, $N$}
             \EndFor
-            \State $\Follow{X} \gets \emptyset$
+            \State $\Follow{X} \gets \varnothing$
             \State $\Follow{S} \gets \set{\$}$ \Comment{Starting non-terminal $S$}
             \ForAll{productions $P = Y \to \cdots\ X\ A_1\ \cdots\ A_n \in \mathcal{R}$}
                 \ForEach{$A_i$}
-                    \State $\Follow{X} \gets \Follow{X} \cup (\First{A_i} - \set{\epsilon})$
-                    \If{$\epsilon \not\in \First{A_i}$}
+                    \State $\Follow{X} \gets \Follow{X} \cup (\First{A_i} - \set{\varepsilon})$
+                    \If{$\varepsilon \not\in \First{A_i}$}
                         \State \Call{NextProduction}{\null}
                     \EndIf
                 \EndFor
@@ -751,7 +751,7 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
     
     It should be noted that
     \begin{itemize}
-        \item $\epsilon \not\in \Follow{X}$
+        \item $\varepsilon \not\in \Follow{X}$
     \end{itemize}
 \end{definition}
 
@@ -761,12 +761,12 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
         \begin{algorithmic}[1]
             \Procedure{BuildLL1ParseTable}{$G$}
                 \ForEach{production $A \to \alpha$}
-                    \ForEach{terminal $b \in \First{\alpha} - \set{\epsilon}$}
+                    \ForEach{terminal $b \in \First{\alpha} - \set{\varepsilon}$}
                         \State $T[A, b] \gets \alpha$
                     \EndFor
-                    \If{$\alpha \to^\ast \epsilon$}
+                    \If{$\alpha \to^\ast \varepsilon$}
                         \ForEach{$b \in \Follow{A}$}
-                            \State $T[A, b] \gets \epsilon$
+                            \State $T[A, b] \gets \varepsilon$
                         \EndFor
                     \EndIf
                 \EndFor
@@ -846,3 +846,593 @@ The language used in \textit{Syntactic Analysis} is the \textit{Context-Free Gra
 \end{definition}
 
 \subsection{Bottom-Up Parsing}
+
+\begin{definition}[LR Parsing]
+    \textit{Bottom-Up} parsers, or $LR$ parsers, construct the parse tree from the \textit{bottom up}, where
+    \begin{itemize}
+        \item Tokens are read \textit{left-to-right}.
+        \item \textit{Right-most} derivations are selected.
+    \end{itemize}
+    
+    $LR$ parses have the additional benefit that grammars do not need to be left-factored, and left-recursive grammars can also be handled. As such, $LR$ parsers handle more grammars than $LL$ parsers.
+\end{definition}
+
+\begin{definition}[High-level $LR$ Parsing Algorithm]
+    $LR$ parsing produces the parse tree by \textit{reducing} the input string to the start symbol $S$ by \textit{inverting productions}.
+    
+    Conceptually, it works by
+    \begin{algorithm}[H]
+        \begin{algorithmic}
+            \Procedure{ParseWithLR1}{$InputString$}
+                \State $str \gets InputString$
+                \Repeat
+                    \State {Find rightmost $\beta \in (\mathcal{N} \cup \mathcal{T})^+$ which has been examined in $str = \alpha\ \beta\ \gamma$ with $A \to \beta$ being a production.}
+                    \State {Replace $\beta$ by $A$, meaning $str \Rightarrow \alpha\ A\ \gamma$.}
+                \Until{$str \equiv S$} \Comment{Until string becomes the start symbol}
+            \EndProcedure
+        \end{algorithmic}
+        \caption{High Level $LR(1)$ Parsing Algorithm}
+        \label{prog:high-level-lr1-parsing}
+    \end{algorithm}
+    
+    It is actually a right-most derivation in reverse, by replacing the right-hand sides of production rules with their respective head non-terminals.
+\end{definition}
+
+\begin{definition}[$LR(1)$ Parsing Notation]
+    $LR(1)$ parsing splits the input string into two substrings
+    \begin{enumerate}
+        \item \textbf{Left substring}: consisting of terminals and non-terminals, i.e. $(\mathcal{N} \cup \mathcal{T})^\ast$.
+        \item \textbf{Right substring}: unexamined terminals, can be considered source of additional context should the $LR(1)$ parser need more information in its current state.
+    \end{enumerate}
+    
+    The two partitions are separated by the symbol $\parallel$. Upon initial input, no input is examined, giving
+    \begin{equation}
+        \parallel x_1\ x_2\ \cdots\ x_n
+    \end{equation}
+\end{definition}
+
+\begin{definition}[$LR$ Actions]
+    Bottom-up $LR$ parsers use two \textit{actions} to find a suitable parse tree:
+    \begin{enumerate}
+        \item Shift
+        \item Reduce
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}[Shift]
+    The \textit{Shift} action moves the $\parallel$ partition symbol one terminal to the right, adding a terminal from the right unexamined substring to the left substring.
+    
+    Given some already examined left substring $\alpha$, then terminal $\tau_1$ from the right unexamined substring is shifted to the left substring
+    \begin{equation}
+        \alpha \parallel \tau_1\ \tau_2\ \cdots\ \tau_n \xRightarrow{\textsc{SHIFT}} \alpha\ \tau_1 \parallel \tau_2\ \cdots\ \tau_n
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Reduce]
+    The \textit{Reduce} action applies an inverse production at the right end of the left substring.
+    
+    Given some left substring $\alpha\ \beta\ \gamma$ and a production rule $A \to \beta\ \gamma$, with a right substring $\zeta$, then
+    \begin{equation}
+        \alpha \underbrace{\beta\ \gamma}_{A \to \beta\ \gamma} \parallel \zeta \xRightarrow{\textsc{REDUCE}} \alpha\ A \parallel \zeta
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Left Substring as a Stack]
+    The \textit{left substring} can be implemented via a \textit{stack}, with the top of the stack being the rightmost symbol, closest to $\parallel$.
+    \begin{itemize}
+        \item The \textit{Shift} action pushes a terminal from the right substring on to the stack.
+        \item The \textit{Reduce} action pops 0 or more symbols off the stack (production right-hand side) and pushes a non-terminal on to the stack (production head left-hand side).
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Deciding When to Shift or Reduce]
+    An \textit{Finite State Automaton} (FSA) can be used to determine when to \textit{shift} or \textit{reduce} based on current stack content and the lookahead terminal.
+    \begin{itemize}
+        \item FSA takes the stack's content as input, which is the content to the left of $\parallel$.
+        \item FSA's alphabet is $\Sigma \equiv \mathcal{N} \cup \mathcal{T}$.
+    \end{itemize}
+    
+    When the FSA is run on the stack's content, examination of
+    \begin{enumerate}
+        \item \textit{Resulting state} $X$, and
+        \item \textit{Lookahead terminal} $s$ after $\parallel$ from the unexamined right substring
+    \end{enumerate}
+    
+    Determines whether to shift or reduce:
+    \begin{itemize}
+        \item \textbf{Shift}: iff $X$ has a transition out labelled with $s$, or
+        \item \textbf{Reduce}: iff $X$ is labelled with
+        \begin{equation}
+            A \to \beta \text{\ on\ } s
+        \end{equation}
+    \end{itemize}
+    
+    Note that this FSA is in fact a \textit{Finite State Transducer}, as detailed in subsection \ref{ssec:finite-state-transducers}.
+    
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{tikzpicture}
+                \node [state] (current) {$q_i$};
+                \node [phantomblock, right=2em of current] (next) {};
+                \draw [->] (current) -- (next) node [midway, above] {$s$};
+            \end{tikzpicture}
+            \caption{Shift condition}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{tikzpicture}
+                \node [state] (current) {$q_i$};
+                \node [phantomblock, below=0.1em of current] {$A \to \beta$ on $s$};
+            \end{tikzpicture}
+            \caption{Shift condition}
+        \end{subfigure}
+        \caption{Finite State Transducer deciding when to shift or reduce}
+        \label{fig:shift-reduce-decision-fst}
+    \end{figure}
+\end{definition}
+
+\subsubsection{Representing LR(1) Parsing FSA}
+
+\begin{definition}[$LR(1)$ Parsing FSA as 2D Table]
+    The $LR(1)$ parsing FSA can be represented with a 2D table:
+    \begin{enumerate}
+        \item FSA state as rows.
+        \item Terminals and non-terminals as columns.
+    \end{enumerate}
+    
+    The columns can be partitioned into
+    \begin{enumerate}
+        \item \textbf{Action table}: for lookaheads (terminals).
+        \item \textbf{Goto table}: for non-terminals.
+    \end{enumerate}
+\end{definition}
+
+\begin{remark}
+    After each shift or reduce action, the FSA is rerun on the entire stack which is inefficient. To improve, remember the resulting FSA state each stack element brings.
+\end{remark}
+
+\subsubsection{LR(1) Parsing Algorithm}
+
+\begin{definition}[$LR(1)$ Parsing Algorithm]
+    Let $\alpha_i \in \Sigma \equiv \mathcal{N} \cup \mathcal{T}$ and $\sigma_i$ be the set of FSA states. An $LR(1)$ parser maintains a stack with (state, sentential form) pairs.
+    \begin{equation}
+        \begin{gathered}
+            \langle \sigma_1, \alpha_i \rangle \\
+            \langle \cdots \rangle \\
+            \langle \sigma_n, \alpha_n \rangle
+        \end{gathered}
+    \end{equation}
+    
+    Each $\sigma_k$ is the FSA state reached on the sentential form
+    \begin{equation}
+        \alpha_1\ \cdots\ \alpha_k
+    \end{equation}
+    
+    The FSA can then jump to $\sigma_n$ on $\alpha_n$.
+    
+    More formally,
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Procedure{ParseWithLR1}{$InputString$}
+                \State $I \gets InputString\ \$$ \Comment{is the input string}
+                \State $j \gets 0$ \Comment{$j$ is the index into $I$ and let $\sigma_0$ be FSA's start state}
+                \State \Call{stack.push}{$\langle \sigma_0, \varepsilon \rangle$} \Comment{$\varepsilon$ takes FSA to start state}
+                \While{true}
+                    \State $\langle \sigma, \alpha \rangle \gets \Call{stack.top}{\null}$
+                    \Switch{$Action[\sigma, I[j]]$}
+                        \Case{Shift $\sigma_t$}
+                            \State \Call{stack.push}{$\langle \sigma_t, I[j] \rangle$}
+                            \State $j{+}{+}$
+                            \Comment{Advance lookahead}
+                            \State \textbf{break}
+                        \EndCase
+                        \Case{Reduce $X \to \beta$} \Comment{$\beta$ is RHS of production}
+                            \For{$i \gets \lvert \beta \rvert$, $i \ge 0$, $i{-}{-}$}
+                                \Comment{$\lvert \beta \rvert$ is the number of symbols in the RHS of the production}
+                                \State \Call{stack.pop}{\null}
+                            \EndFor
+                            \State \Call{stack.push}{$\langle X, Goto[\sigma, \alpha] \rangle$}
+                            \State \textbf{break}
+                        \EndCase
+                        \Case{Accept}
+                            \State \Call{Halt}{\null}
+                        \EndCase
+                        \Case{Error}
+                            \State \Call{ReportError}{stack}
+                        \EndCase
+                    \EndSwitch
+                \EndWhile
+            \EndProcedure
+        \end{algorithmic}
+        \caption{$LR(1)$ Parsing Algorithm}
+        \label{prog:lr1-parsing-algorithm}
+    \end{algorithm}
+\end{definition}
+
+\begin{definition}[$LR(1)$ Item]
+    An $LR(1)$ \textit{item} is given by the pair
+    \begin{equation}
+        X \to \alpha \bullet \beta, a
+    \end{equation}
+    
+    Where
+    \begin{itemize}
+        \item $X \to \alpha \bullet \beta$ is a production, with $\alpha$ already on the stack and $\beta$ remaining to be handled.
+        \item $a$ is the lookahead terminal.
+    \end{itemize}
+    
+    Here $LR(1)$ refers to having one lookahead.
+\end{definition}
+
+\begin{definition}[Parser Context]
+    The \textit{context} of the parser can be described with
+    \begin{equation}
+        [X \to \alpha \bullet \beta, a]
+    \end{equation}
+    
+    \begin{itemize}
+        \item Looking for $X$ followed by the lookahead $a$.
+        \item Top of stack is $\alpha$.
+        \item Need to find prefix derived from $\beta\ a$.
+    \end{itemize}
+    
+    Where $X \in \mathcal{N}$, $\alpha, \beta \in (\mathcal{N} \cup \mathcal{T})$.
+\end{definition}
+
+\begin{definition}[$LR(1)$ Augmented Grammar]
+    A new start symbol $S\prime$ is added to the target grammar $G$ with the production rule
+    \begin{equation}
+        S\prime \to S
+    \end{equation}
+    
+    With $S$ being the old start symbol.
+    
+    The initial parsing context contains
+    \begin{equation}
+        S\prime \to \bullet S, \$
+    \end{equation}
+    
+    Indicating that
+    \begin{itemize}
+        \item Trying to find string derived from $S\$$.
+        \item Stack is empty.
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Closure Operation]
+    The \textit{closure} operation extends the context with additional items. Given a grammar $G = \langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$,
+    
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Procedure{Closure}{$Items$}
+                \Repeat
+                    \ForEach{$[X \to A \bullet Y\ \beta, a] \in Items$}
+                        \ForEach{$Y \to \gamma \in \mathcal{R}$}
+                            \Comment{All productions with head $Y$}
+                            \ForEach{$b \in \First{\beta\ a}$}
+                                \State $Items \gets Items \cup [Y \to \bullet \gamma, b]$
+                            \EndFor
+                        \EndFor
+                    \EndFor
+                \Until{$Items$ unchanged}
+            \EndProcedure
+        \end{algorithmic}
+        \caption{Closure operation}
+        \label{prog:closure-lr1}
+    \end{algorithm}
+\end{definition}
+
+\begin{remark}
+    If two or more $LR(1)$ items in the same FSA state have the same production with the dot in the same position, with the only difference being the lookahead terminal, then it can be written in short-hand as
+    \begin{equation}
+        \boxed{\begin{gathered}
+            X \to A \bullet Y\ \beta, \tau_1 \\
+            X \to A \bullet Y\ \beta, \cdots \\
+            X \to A \bullet Y\ \beta, \tau_n 
+        \end{gathered}} \Rightarrow
+        \boxed{
+            X \to A \bullet Y\ \beta, \tau_1 / \cdots / \tau_n
+        }
+    \end{equation}
+\end{remark}
+
+\begin{definition}[Transition between $LR(1)$ FSA States]
+    The \textit{Transition} procedure computes the next states reachable from a given state in a $LR(1)$ parsing FSA, given by
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Procedure{Transition}{$state$, $y$}
+                \State $Items \gets \varnothing$
+                \ForEach{$X \to A \bullet y\ \beta, b \in state$}
+                    \State $Items \gets Items \cup [X \to A\ y \bullet \beta, b]$
+                \EndFor
+                \State \Return{\Call{Closure}{$Items$}}
+            \EndProcedure
+        \end{algorithmic}
+        \caption{Transition}
+        \label{prog:transition-lr1}
+    \end{algorithm}
+    
+    Where $X \in \mathcal{N}$, $y \in (\mathcal{N} \cup \mathcal{T})$, $A, \beta \in (\mathcal{N} \cup \mathcal{T})^\ast$ and $b \in \mathcal{T}$.
+\end{definition}
+
+\begin{definition}[Constructing $LR(1)$ Parsing FSA]
+    The \textit{start context} needs to be constructed first by computing the closure of the start symbol
+    \begin{equation}
+        \mathrm{Closure}(\set{S\prime \to \bullet S, \$})
+    \end{equation}
+    
+    With each FSA state being a \textit{closed} set of $LR(1)$ items, meaning the \textit{closure} operation needs to be applied to each FSA state upon creation, then
+    \begin{enumerate}
+        \item The start state has
+        \begin{equation}
+            [S\prime \to \bullet S, \$]
+        \end{equation}
+        \item A state is labelled with \textit{reduce on $X \to \alpha$ on $b$} iff it contains
+        \begin{equation}
+            [X \to \beta \bullet, b]
+        \end{equation}
+        \item A state has an outwards \textit{transition labelled $y$} to a state which contains the items of $\mathrm{Transition}(state, y)$ iff it contains
+        \begin{equation}
+            [X \to A \bullet \gamma\ \beta, b]
+        \end{equation}
+    \end{enumerate}
+    
+    The overall algorithm is then given by
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Procedure{BuildLR1FSA}{\null}
+                \State $workSet \gets S_0 = \Call{Closure}{S\prime \to \bullet S, \$}$
+                \State $Q \gets \varnothing$
+                \While{$workSet \neq \varnothing$}
+                    \State $S_s \gets \Call{removeFirst}{workSet}$
+                    \State $Q \gets Q \cup \set{S_s}$
+                    \ForEach{$[X \to \alpha \bullet y\ \beta, t] \in \Call{Items}{S_s}$}
+                        \Comment{$y \in (\mathcal{N} \cup \mathcal{T})$}
+                        \State $S_t \gets \Call{Transition}{S_s, y}$
+                        \State $\delta \gets \delta \cup \set{S_s \times y \to S_t}$
+                        \If{$S_t \not\in Q$}
+                            \State $workSet \gets workSet \cup \set{S_t}$
+                        \EndIf
+                    \EndFor
+                \EndWhile
+                \State $F \gets \set{q \in Q \given \Exists i \in \Call{Items}{q} \colon i = [Y \to \alpha \bullet, \$]}$
+                \State \Return{$\langle Q, \Sigma = (\mathcal{N} \cup \mathcal{T}), \delta, F, S_0 \rangle$}
+            \EndProcedure
+        \end{algorithmic}
+        \caption{$LR(1)$ Parsing FSA Construction}
+        \label{prog:lr1-fsa-construction}
+    \end{algorithm}
+\end{definition}
+
+\begin{definition}[Constructing $LR(1)$ Parse Table]
+    Given some grammar $G = \langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$ then to build the $LR(1)$ parse table,
+    \begin{enumerate}
+        \item Compute $\First{n}$ for each non-terminal $n \in \mathcal{N}$.
+        \item Add new start state $S\prime$ giving the augmented grammar $G\prime$
+        \begin{equation}
+            G\prime = \langle \mathcal{N} \cup \set{S\prime}, \mathcal{T}, \mathcal{R} \cup \set{S\prime \to S}, S\prime \rangle
+        \end{equation}
+        \item Run FSA construction algorithm on $G\prime$ and
+        \begin{enumerate}
+            \item Create $LR(1)$ item sets (FSA states).
+            \item Add transitions.
+        \end{enumerate}
+        \item Convert FSA to parsing table.
+    \end{enumerate}
+    
+    The conversion between the FSA and the parsing table is given as follows. Given some grammar $G = \langle \mathcal{N}, \mathcal{T}, \mathcal{R}, S \rangle$ and given its parsing FSA $M = \langle \Sigma, \mathcal{Q}, \delta, F, q_0 \rangle$, then the parsing table has
+    \begin{itemize}
+        \item FSA states $\mathcal{Q}$ as rows.
+        \item Terminals and non-terminals $(\mathcal{N} \cup \mathcal{T})$ as columns.
+        \item \textit{Shift}, \textit{reduce}, \textit{goto} or \textit{accept} actions as table entries, where
+        \begin{enumerate}
+            \item \textit{Shift}: $\mathrm{shift}(q)$
+            \item \textit{Goto}: $\mathrm{goto}(q)$
+            \item \textit{Reduce}: $\mathrm{reduce}(n)$ with $n$ numbering the production rules such that
+            \begin{equation}
+                n \coloneqq I \xrightarrow{X} J \in \delta
+            \end{equation}
+        \end{enumerate}
+    \end{itemize}
+    
+    More specifically, for the parse table $T$, with each table entry being a pair $\langle q \in \mathcal{Q}, \beta \in (\mathcal{N} \cup \mathcal{T}) \rangle$
+    \begin{equation}
+        T[q, \beta]
+    \end{equation}
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{@{} r l @{}}
+            \toprule
+            Action & Corresponding Cell Entry \\
+            \midrule
+            Shift  & $\Forall I \xrightarrow{\alpha} J \colon \alpha \in \mathcal{T} \implies T[I, \alpha] = \mathrm{shift}(J)$ \\
+            Goto   & $\Forall I \xrightarrow{X} J \colon X \in \mathcal{N} \implies T[I, X] = \mathrm{goto}(J)$ \\
+            Accept & $\Forall I \in \mathcal{Q} \colon (S\prime \to S \bullet, \$) \in I \implies T[I, \$] = \mathrm{accept}$ \\
+            Reduce & $\Forall I \in \mathcal{Q} \colon (A \to g \bullet, y) \land n \coloneqq (A \to g) \implies T[I, y] = \mathrm{reduce}(n)$ \\
+            \bottomrule
+        \end{tabular}
+        \caption{$LR(1)$ actions and corresponding parse table entry}
+        \label{fig:lr1-parse-table-entry-types}
+    \end{figure}
+\end{definition}
+
+\begin{remark}
+    The algorithm builds an NFA as there does not exist a transition $\delta$ for each symbol $\beta \in (\mathcal{N} \cup \mathcal{T})$. Although, the NFA does not contain any $\varepsilon$-transitions, meaning that it can be easily converted to a DFA by explicitly labelling unused transitions to a trash state, with any states that have accept annotations marked as final.
+\end{remark}
+
+\subsubsection{Shift/Reduce Conflicts}
+
+\begin{definition}[Shift/Reduce Conflict]
+    A \textit{Shift/Reduce conflict} (S/R conflict) occurs when there exists a DFA state which contains both
+    \begin{align}
+        &[X \to A \bullet a\ \beta, b]  &[Y \to \Gamma \bullet, a]
+    \end{align}
+    
+    Since on reading the input character $a$ it is equally valid to either
+    \begin{enumerate}
+        \item Shift into the state
+        \begin{equation}
+            [X \to A\ a \bullet \beta, b]
+        \end{equation}
+        \item Reduce with
+        \begin{equation}
+            Y \to \Gamma
+        \end{equation}
+    \end{enumerate}
+    
+    Such S/R conflicts tend to be due to ambiguities in the grammar. The default behaviour of many tools is to shift.
+\end{definition}
+
+\begin{definition}[Resolve S/R Conflicts]
+    S/R conflicts can be resolved by either fixing the grammar, or introducing precedence on terminals which tend to cause the S/R conflicts. S/R conflicts are to resolved with a shift in tools like JFlex if any of the conditions below are satisfied
+    \begin{enumerate}
+        \item No precedence declared for rule or terminal.
+        \item Input terminal has higher precedence than rule.
+        \item Both have same precedence and are right associative.
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}[Reduce/Reduce Conflicts]
+    A \textit{Reduce/Reduce conflict} (R/R conflict) occurs if there exists a DFA state which contains both
+    \begin{align}
+        &[X \to A \bullet, a] &[Y \to B \bullet, a]
+    \end{align}
+    
+    Then on reading input character $a$ it is equally valid to reduce with either rules, and the parse cannot choose which.
+\end{definition}
+
+\begin{definition}[$LR(1)$ Item Set Core]
+    The \textit{core} of a set of $LR(1)$ item sets is the set of the first components without the lookahead tokens, e.g. given the set of $LR(1)$ items
+    \begin{equation}
+        \set{ [X \to \alpha \bullet \beta, b], [Y \to \gamma \bullet \delta, d] }
+    \end{equation}
+    
+    Then the \textit{core} of the item set is
+    \begin{equation}
+        \set{ X \to \alpha \bullet \beta, Y \to \gamma \bullet \delta }
+    \end{equation}
+\end{definition}
+
+\begin{remark}
+    Parser generates are available, but many do not construct the DFA since the $LR(1)$ parsing FSA can yield many states even for simple languages. Note that many FSA states are similar, e.g. there may be two states $q_i$ and $q_j$ where
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \node [block] (q_i) {$q_i \colon X \to a \bullet, {\$}/{+}$};
+            \node [block, right=3em of q_i] (q_j) {$q_j \colon X \to a \bullet, {)}/{+}$};
+        \end{tikzpicture}
+        \caption{Similar $LR(1)$ states}
+        \label{fig:similar-lr1-states}
+    \end{figure}
+    
+    Then they can be merged together since they have the same \textit{core} and differing only in the lookahead token, giving
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \node [block] (q_k) {$q_k \colon X \to a \bullet, {\$}/{+}/{)}$};
+        \end{tikzpicture}
+        \caption{Merged $LR(1)$ state}
+        \label{fig:merged-lr1-state}
+    \end{figure}
+\end{remark}
+
+\begin{definition}[$LALR(1)$ States]
+    Given some $LR(1)$ states
+    \begin{equation}
+        \begin{aligned}
+            &\set{ [X \to \alpha \bullet, a], [Y \to \beta \bullet, c] } \\
+            &\set{ [X \to \alpha \bullet, b], [Y \to \beta \bullet, d] }
+        \end{aligned}
+    \end{equation}
+    
+    Since they have the same \textit{core}, they can be merged to give the $LALR(1)$ state
+    \begin{equation}
+        \set{ [X \to \alpha \bullet, a/b], [Y \to \beta \bullet, c/d] }
+    \end{equation}
+    
+    With $LALR(1)$ denoting \textit{Look-Ahead} $LR(1)$.
+\end{definition}
+
+\begin{definition}[Constructing $LALR(1)$ FSA]
+    Given a $LR(1)$ FSA and its states, it is then possible construct its corresponding $LALR(1)$ FSA with
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Procedure{BuildLALR1States}{$LR1States$}
+                \Repeat
+                    \State $\langle q_i, q_j \rangle \gets \Call{GetTwoStatesWithSameCore}{LR1States}$
+                    \State $I_{\text{merged}} \gets \Call{Items}{q_i} \cup \Call{Items}{q_j}$
+                    \State $q_{\text{merged}} \gets \Call{CreateState}{I_{\text{merged}}}$
+                    \State $pred \gets \Call{GetPrecedessors}{q_i} \cup \Call{GetPrecedessors}{q_j}$
+                    \ForEach{$q_p \in pred$}
+                        \State \Call{RedirectEdges}{$\text{from}: q_p, \text{to}: q_{\text{merged}}$}
+                    \EndFor
+                    \State $succ \gets \Call{GetSuccessors}{q_i} \cup \Call{GetSuccessors}{q_j}$
+                    \ForEach{$q_s \in succ$}
+                        \State \Call{RedirectEdges}{$\text{from}: q_{\text{merged}}, \text{to}: q_s$}
+                    \EndFor
+                \Until{all states have distinct core}
+            \EndProcedure
+        \end{algorithmic}
+        \caption{$LALR(1)$ FSA construction}
+        \label{prog:lalr1-fsa}
+    \end{algorithm}
+    
+    Graphically, given $LR(1)$ states $A, B, C, D, E, F$ with $B, E$ having the same cores needing to be merged, then a new $LALR(1)$ state $BE$ is created:
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{tikzpicture}
+                \node [state] (A) {$A$};
+                \node [state, right=2em of A] (B) {$B$};
+                \node [state, right=2em of B] (C) {$C$};
+                \node [state, below=1em of A] (D) {$D$};
+                \node [state, right=2em of D] (E) {$E$};
+                \node [state, right=2em of E] (F) {$F$};
+                \path [->] (A) edge (B)
+                           (B) edge (C)
+                           (D) edge (E)
+                           (E) edge (F);
+            \end{tikzpicture}
+            \caption{$LR(1)$ states}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{tikzpicture}
+                \node [state] (BE) {$BE$};
+                \node [state, above left=0.5em and 2em of BE] (A) {$A$};
+                \node [state, below left=0.5em and 2em of BE] (D) {$D$};
+                \node [state, above right=0.5em and 2em of BE] (C) {$C$};
+                \node [state, below right=0.5em and 2em of BE] (F) {$F$};
+                \path [->] (A)  edge (BE)
+                           (BE) edge (C)
+                           (D)  edge (BE)
+                           (BE) edge (F);
+            \end{tikzpicture}
+            \caption{Merged $LALR(1)$ states}
+        \end{subfigure}
+        \caption{Merging $LR(1)$ states to produce $LALR(1)$ states}
+        \label{fig:lalr1-merge}
+    \end{figure}
+\end{definition}
+
+\begin{remark}
+    Merging $LR(1)$ states could introduce new Reduce/Reduce conflicts. For instance, given the $LR(1)$ states
+    \begin{equation}
+        \begin{aligned}
+            &\set{ [X \to \alpha \bullet, a], [Y \to \beta \bullet, b] } \\
+            &\set{ [X \to \alpha \bullet, b], [Y \to \beta \bullet, a] }
+        \end{aligned}
+    \end{equation}
+    
+    Whihc merge to give the $LALR(1)$ state
+    \begin{equation}
+        \begin{aligned}
+            \set{ [X \to \alpha \bullet, a/b], [Y \to \beta \bullet, a/b] }
+        \end{aligned}
+    \end{equation}
+    
+    Which contains a new Reduce/Reduce conflict.
+\end{remark}

@@ -69,7 +69,7 @@ To a recognize a \textit{regex}, one may use a \textit{Finite State Automata} (F
                 L_0^{\ast} \coloneqq
                     \set{ x_1 x_2 \cdots x_k 
                         \given k > 0 \land x_i \in L_0
-                    } \cup \set{ \epsilon }
+                    } \cup \set{ \varepsilon }
             \end{equation}
     \end{enumerate}
 \end{definition}
@@ -80,8 +80,8 @@ To a recognize a \textit{regex}, one may use a \textit{Finite State Automata} (F
     For a given alphabet $\Sigma$, the \textit{regular expression} $R$ is defined inductively as
     \begin{enumerate}
         \item $a \in \Sigma$
-        \item $\epsilon$
-        \item $\emptyset$
+        \item $\varepsilon$
+        \item $\varnothing$
         \item $(R_1 \mid R_2)$
         \item $(R_1 R_2)$
         \item $(R_1^{\ast})$
@@ -89,8 +89,8 @@ To a recognize a \textit{regex}, one may use a \textit{Finite State Automata} (F
     Where
     \begin{itemize}
         \item $R_1$, $R_2$ are valid \textit{regular expressions}.
-        \item $\epsilon$ denotes the empty string.
-        \item $\emptyset$ is the empty set.
+        \item $\varepsilon$ denotes the empty string.
+        \item $\varnothing$ is the empty set.
     \end{itemize}
 \end{definition}
 
@@ -109,8 +109,8 @@ To a recognize a \textit{regex}, one may use a \textit{Finite State Automata} (F
             $a$         & $\set{a}$ \\
             $a \mid b$  & $\set{a, b}$ \\
             $(ab)^\ast$ & 
-                $\set{\epsilon, ab, abab, ababab, \dots}$ \\
-            $(a \mid \epsilon)b$ & $\set{b, ab, aab, \dots}$ \\
+                $\set{\varepsilon, ab, abab, ababab, \dots}$ \\
+            $(a \mid \varepsilon)b$ & $\set{b, ab, aab, \dots}$ \\
             $(a \mid b^\ast)a$ & $\set{a, aa, ba, bba, \dots}$ \\
             \bottomrule
         \end{tabular}
@@ -170,7 +170,7 @@ To reduce the number of \textit{parantheses} required to unambiguously interpret
             Syntax Sugar & Equivalent Regular Expression \\
             \midrule
             $a^+$ & $aa^\ast$  \\
-            $a?$ & $a \mid \epsilon$ \\
+            $a?$ & $a \mid \varepsilon$ \\
             $[abc]$ & $a \mid b \mid c$ \\
             $[a \mhyphen z]$ & 
                 $a \mid b \mid c \mid \cdots \mid z \equiv \Sigma$ \\
@@ -369,24 +369,24 @@ A \textit{Non-deterministic Finite Automata} (NFA) is a DFA with added convience
     \begin{enumerate}
         \item \textbf{Alphabet}: $\Sigma$ is the finite set of characters making up the \textit{alphabet}.
         \item \textbf{States}: $\mathcal{Q}$ is the finite set of \textit{states}.
-        \item \textbf{Transition Function}: $\delta \colon \mathcal{Q} \times \Sigma_{\epsilon} \to \Pow{\mathcal{Q}}$.
+        \item \textbf{Transition Function}: $\delta \colon \mathcal{Q} \times \Sigma_{\varepsilon} \to \Pow{\mathcal{Q}}$.
         \item \textbf{Start State}: $q_0 \in \mathcal{Q}$.
         \item \textbf{Final States}: $\mathcal{F} \subseteq \mathcal{Q}$.
     \end{enumerate}
     
-    Note that $\Sigma_{\epsilon} \coloneqq \Sigma \cup \set{\epsilon}$ and $\Pow{\cdot}$ is the power set.
+    Note that $\Sigma_{\varepsilon} \coloneqq \Sigma \cup \set{\varepsilon}$ and $\Pow{\cdot}$ is the power set.
 \end{definition}
 
 \begin{remark}
     Special attention needs to be paid to the \textit{transition function} of the NFA. Notice that for the transition function $\delta$
     \begin{equation}
-        \delta \colon \mathcal{Q} \times \Sigma_{\epsilon} \to \Pow{\mathcal{Q}}
+        \delta \colon \mathcal{Q} \times \Sigma_{\varepsilon} \to \Pow{\mathcal{Q}}
     \end{equation}
 
     \begin{itemize}
-        \item There may be $\epsilon$-transitions (read as \textit{epsilon}-transitions). The NFA may change states \textit{without} reading input.
+        \item There may be $\varepsilon$-transitions (read as \textit{epsilon}-transitions). The NFA may change states \textit{without} reading input.
         \item On a single input character, the NFA can transition to \textit{multiple} states.
-        \item On a single input character, the NFA can also go to \textit{no} state ($\emptyset$).
+        \item On a single input character, the NFA can also go to \textit{no} state ($\varnothing$).
     \end{itemize}
     
     These convenience features combined gives rise to the \textit{non-determinism} in the name of the NFA.
@@ -398,7 +398,7 @@ A \textit{Non-deterministic Finite Automata} (NFA) is a DFA with added convience
             \begin{tikzpicture}
             \node [state] (q_1) {$q_1$};
             \node [state, right=2em of q_1] (q_2) {$q_2$};
-            \draw [->] (q_1) edge node [midway, above] {$\epsilon$} (q_2);
+            \draw [->] (q_1) edge node [midway, above] {$\varepsilon$} (q_2);
             \end{tikzpicture}
             \caption{Epsilon Transition}
         \end{subfigure}
@@ -432,7 +432,7 @@ A \textit{Non-deterministic Finite Automata} (NFA) is a DFA with added convience
         \midrule
         For each input character 
         & Definitive next state 
-        & Can either take $\epsilon$-transition or take which one of multiple possible transition. \\
+        & Can either take $\varepsilon$-transition or take which one of multiple possible transition. \\
         Acceptance
         & Ends in final state
         & Has a path from start state to final state \\
@@ -508,7 +508,7 @@ The algorithm for converting regex to NFA is called  \textit{Thompson's Construc
     
     \textbf{CASE 1}: Single Symbol.
     
-    Transition for a single input character $a \in \Sigma$ (note that $\epsilon$ is simply a symbol).
+    Transition for a single input character $a \in \Sigma$ (note that $\varepsilon$ is simply a symbol).
     
     \begin{figure}[H]
         \centering
@@ -559,7 +559,7 @@ The algorithm for converting regex to NFA is called  \textit{Thompson's Construc
         \item Introduce new start state.
         \item Definalize $A$ and $B$'s final state.
         \item Introduce new final state.
-        \item Connect the new start state, new final state, and $A$ and $B$ with $\epsilon$-transitions.
+        \item Connect the new start state, new final state, and $A$ and $B$ with $\varepsilon$-transitions.
     \end{enumerate}
     
     \begin{figure}[H]
@@ -575,14 +575,14 @@ The algorithm for converting regex to NFA is called  \textit{Thompson's Construc
             \node [state]            (qa_f) [right of=qa_p] {};
             \node [state]            (qb_f) [right of=qb_p] {};
             \node [state, accepting] (q_f)  [below right of=qa_f] {};
-            \draw [->] (q_s) edge [above] node[midway] {$\epsilon$} (qa_s);
-            \draw [->] (q_s) edge [above] node[midway] {$\epsilon$} (qb_s);
+            \draw [->] (q_s) edge [above] node[midway] {$\varepsilon$} (qa_s);
+            \draw [->] (q_s) edge [above] node[midway] {$\varepsilon$} (qb_s);
             \draw [->] (qa_s) -- (qa_p);
             \draw [->] (qa_p) -- (qa_f);
             \draw [->] (qb_s) -- (qb_p);
             \draw [->] (qb_p) -- (qb_f);
-            \draw [->] (qa_f) edge [above] node[midway] {$\epsilon$} (q_f);
-            \draw [->] (qb_f) edge [above] node[midway] {$\epsilon$} (q_f);
+            \draw [->] (qa_f) edge [above] node[midway] {$\varepsilon$} (q_f);
+            \draw [->] (qb_f) edge [above] node[midway] {$\varepsilon$} (q_f);
             \node [draw=black, fit=(qa_s) (qa_p) (qa_l) (qa_f)] {};
             \node [draw=black, fit=(qb_s) (qb_p) (qb_l) (qb_f)] {};
         \end{tikzpicture}
@@ -604,9 +604,9 @@ The algorithm for converting regex to NFA is called  \textit{Thompson's Construc
             \draw [->] (q_s) -- (q_p);
             \draw [->] (q_p) -- (q_f);
             \path [->] (q_s) edge [bend left=60, above] 
-                node [midway] {$\epsilon$} (q_f);
+                node [midway] {$\varepsilon$} (q_f);
             \path [->] (q_f) edge [bend left=60, below] 
-                node [midway] {$\epsilon$} (q_s);
+                node [midway] {$\varepsilon$} (q_s);
             \node [draw=black, fit=(q_s) (q_f), inner sep=3em] {};
         \end{tikzpicture}
         \caption{Kleene Star Case}
@@ -628,13 +628,13 @@ It is also possible to convert from NFA to DFA as they have equivalent power.
 \end{definition}
 
 \begin{definition}[Epsilon Closure]
-    The \textit{$\epsilon$-closure} of a state $q$, denoted $\epsilon(q)$, is the set of NFA states which are reachable from $q$ with $\epsilon$-transitions.
+    The \textit{$\varepsilon$-closure} of a state $q$, denoted $\varepsilon(q)$, is the set of NFA states which are reachable from $q$ with $\varepsilon$-transitions.
     
     \begin{equation}
-        \epsilon(q) = \left\lbrace r \in \mathcal{Q} \mid q \xrightarrow[\epsilon]{\ast} r \right\rbrace
+        \varepsilon(q) = \left\lbrace r \in \mathcal{Q} \mid q \xrightarrow[\varepsilon]{\ast} r \right\rbrace
     \end{equation}
     
-    Note that $\epsilon(q) \ne \emptyset$ since the state $q$ is itself in its $\epsilon$ closure, that is $q \in \epsilon(q)$.
+    Note that $\varepsilon(q) \ne \varnothing$ since the state $q$ is itself in its $\varepsilon$ closure, that is $q \in \varepsilon(q)$.
 \end{definition}
 
 \begin{definition}[NFA to DFA High Level Algorithm]
@@ -658,7 +658,7 @@ It is also possible to convert from NFA to DFA as they have equivalent power.
     
     Where
     \begin{equation}
-        s_D \equiv \epsilon(s_N)
+        s_D \equiv \varepsilon(s_N)
     \end{equation}
     
     For each DFA state $q_D \in \mathcal{Q}_D$, add the transition
@@ -667,7 +667,7 @@ It is also possible to convert from NFA to DFA as they have equivalent power.
     \end{equation}
     To $\delta_D$ if there exists a state $s$ where $T$ is
     \begin{equation}
-        T = \epsilon(\delta_N (s, a))
+        T = \varepsilon(\delta_N (s, a))
     \end{equation}
     
     If some $q_D \in \mathcal{Q}_D$ contains one of the NFA's final states in $\mathcal{F}_N$, then mark $q_D$ as final as well, that is $q_D \in \mathcal{F}_D$.
@@ -687,9 +687,9 @@ It is also possible to convert from NFA to DFA as they have equivalent power.
     \begin{algorithm}[H]
         \begin{algorithmic}[1]
             \Procedure{addTransition}{$\langle q_D$, $a \rangle$}
-                \State $q_D^\prime \gets \emptyset$
+                \State $q_D^\prime \gets \varnothing$
                 \ForAll{$q_N \in q_D$}
-                    \State $q_D^\prime \gets q_D^\prime \cup \epsilon(\delta_N(q_N, a))$
+                    \State $q_D^\prime \gets q_D^\prime \cup \varepsilon(\delta_N(q_N, a))$
                 \EndFor
                 \State $\delta_D \gets \set{q_D \times a \to q_D^\prime}$
                 \State \Return $\langle q_D^\prime, \delta_D \rangle$
@@ -713,8 +713,8 @@ It is also possible to convert from NFA to DFA as they have equivalent power.
                     \mathcal{F}_N
                 \rangle
             $}
-                \State $s_D \gets \epsilon(s_N)$
-                \State $\delta_D \gets \emptyset$
+                \State $s_D \gets \varepsilon(s_N)$
+                \State $\delta_D \gets \varnothing$
                 \State $\mathcal{Q}_D \gets \set{s_D}$
                 \State \Call{WC.enqueue}{$s_D$} \Comment{$\mathrm{WC}$ is the workset.}
                 \While{$\neg$ \Call{WC.isEmpty}{\null}}
@@ -728,7 +728,7 @@ It is also possible to convert from NFA to DFA as they have equivalent power.
                         \State $\mathcal{Q}_D \gets \mathcal{Q}_D \cup \set{q_D^\prime}$
                     \EndFor
                 \EndWhile
-                \State $\mathcal{F}_D \gets \set{x \in \mathcal{Q}_D \given x \cap \mathcal{F}_N \ne \emptyset}$
+                \State $\mathcal{F}_D \gets \set{x \in \mathcal{Q}_D \given x \cap \mathcal{F}_N \ne \varnothing}$
                 \State \Return $\langle
                     \Sigma,
                     \mathcal{Q}_D,
@@ -764,7 +764,7 @@ It is also possible to convert from NFA to DFA as they have equivalent power.
 
 % TODO: Add DFA -> minified DFA
 
-\subsection{Finite State Transducers}
+\subsection{Finite State Transducers}\label{ssec:finite-state-transducers}
 
 \begin{definition}
     The \textit{Finite State Transducer} (FST) $M$ can be described by the 6-tuple
@@ -784,12 +784,12 @@ It is also possible to convert from NFA to DFA as they have equivalent power.
         \item \textbf{Input Alphabet}: $\Sigma$ is the set of characters making up the \textit{input alphabet}.
         \item \textbf{Output Alphabet}: $\Gamma$ is the set of characters making up the \textit{output alphabet}.
         \item \textbf{States}: $\mathcal{Q}$ is the finite set of \textit{states}.
-        \item \textbf{Transition Function}: $\delta \colon \mathcal{Q} \times \Sigma_{\epsilon} \to \Gamma_{\epsilon} \times \mathcal{Q}$.
+        \item \textbf{Transition Function}: $\delta \colon \mathcal{Q} \times \Sigma_{\varepsilon} \to \Gamma_{\varepsilon} \times \mathcal{Q}$.
         \item \textbf{Start State}: $q_0 \in \mathcal{Q}$.
         \item \textbf{Final States}: $\mathcal{F} \subseteq \mathcal{Q}$.
     \end{enumerate}
     
-    Note that $\Gamma_{\epsilon} \coloneqq \Gamma \cup \set{\epsilon}$ and $\Sigma_{\epsilon} \coloneqq \Sigma \cup \set{\epsilon}$.
+    Note that $\Gamma_{\varepsilon} \coloneqq \Gamma \cup \set{\varepsilon}$ and $\Sigma_{\varepsilon} \coloneqq \Sigma \cup \set{\varepsilon}$.
 \end{definition}
 
 \subsubsection{FST Output Function}
@@ -799,10 +799,10 @@ There are two output functions defined implicitly in the previous definition of 
 \begin{definition}[Mealy Output Function]
     The \textit{Mealy output function} is implicit in the FSA's transition function, and is defined as
     \begin{equation}
-        \mathcal{Q} \times \Sigma_{\epsilon} \to \Gamma_{\epsilon}
+        \mathcal{Q} \times \Sigma_{\varepsilon} \to \Gamma_{\varepsilon}
     \end{equation}
     
-    This output function outputs on the \textit{edges}. Its edges are labeled as \enquote{$i/o$}, where $i \in \Sigma_{\epsilon}$ and $j \in \Gamma_{\epsilon}$.
+    This output function outputs on the \textit{edges}. Its edges are labeled as \enquote{$i/o$}, where $i \in \Sigma_{\varepsilon}$ and $j \in \Gamma_{\varepsilon}$.
     
     \begin{figure}[H]
         \centering
@@ -819,7 +819,7 @@ There are two output functions defined implicitly in the previous definition of 
 \begin{definition}[Moore Output Function]
     The \textit{Moore output function} is also implicit in the FSA's transition function, and is defined as
     \begin{equation}
-        \mathcal{Q} \to \Gamma_{\epsilon}
+        \mathcal{Q} \to \Gamma_{\varepsilon}
     \end{equation}
     
     This output function outputs upon entry to a state. Its nodes are labelled with output \enquote{$o$}.
