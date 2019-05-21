@@ -6,3 +6,4 @@ Notes for COMP0012 Compilers:
 - Semantic Analysis
 - Intermediate Representation
 - Optimization
+- Run time organization
