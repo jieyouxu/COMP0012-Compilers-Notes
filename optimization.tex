@@ -1,1 +1,592 @@
 \section{Optimization}
+
+\subsection{Basics}
+
+\begin{definition}[Ideal Characteristics of Target Code]
+    The \textit{ideal target code} has the characteristics
+    \begin{itemize}
+        \item Semantics-preserving
+        \item Efficient
+        \item Small memory footprint
+        \item Small space usage
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Semantic-Preserving]
+    \textit{Optimization} as an \textit{improvement} requires that the semantics of the source code is strictly \textit{preserved}; only space and/or time requirements are improved in the target code.
+\end{definition}
+
+\begin{definition}[Side-Effects]
+    A function $f$ has \textit{side-effects} if it
+    \begin{itemize}
+        \item Modifies external state, or
+        \item Interacts with calling functions or the outside world, or
+        \item Produces different output given the same input.
+    \end{itemize}
+
+    If a function $f$ does \textit{not} have \textit{side-effects}, then $f$ is considered a \textit{pure} function.
+\end{definition}
+
+\begin{remark}
+    Side-effects need to be carefully considered when trying to optimize function calls.
+    
+    For instance, it is only safe to rewrite
+    \begin{minted}{text}
+f(x) + f(x)
+    \end{minted}
+    
+    With
+    \begin{minted}{text}
+2 * f(x)
+    \end{minted}
+    
+    If and only if $f$ is a \textit{pure} function.
+\end{remark}
+
+\begin{definition}[Optimization at Different Levels]
+    Different information is available for optimization at different levels
+    \begin{itemize}
+        \item High level
+        \begin{itemize}
+            \item Type information
+        \end{itemize}
+        \item Intermediate level
+        \begin{itemize}
+            \item Control Flow Analysis
+            \item Data Flow Analysis
+            \item Index calculation
+            \item Bounds checking
+        \end{itemize}
+        \item Low level
+        \begin{itemize}
+            \item Target code selection
+            \item Register allocation
+        \end{itemize}
+    \end{itemize}
+\end{definition}
+
+\begin{remark}
+    There is a classic conflict in optimization: the trade-off between \textit{time} and \textit{space}. But it is generally the case that the fewer instructions there are, the faster the execution.
+\end{remark}
+
+\begin{definition}[Common Peephole Optimizations]
+    There are numerous optimizations which are common at the source, AST or IR level:
+    \begin{itemize}
+        \item Common Subexpression Elimination
+        \item Algebraic Identities
+        \item Dead Code Elimination
+        \item Constant Folding
+        \item Strength Reduction
+        \item Inlining
+        \item Copy Propagation
+        \item Loop optimizations
+        \begin{itemize}
+            \item Unrolling
+            \item Fusion / Fission
+            \item Code Motion
+            \item Tiling
+            \item Inversion
+            \item Interchange
+            \item Unswitching
+        \end{itemize}
+    \end{itemize}
+\end{definition}
+
+\subsection{Common Subexpression Elimination}
+
+\begin{definition}[Common Subexpression]
+    An expression $E$ is termed a \textit{common subexpression} if it has been previously computed, and the variables involved in the subexpression has not changed since the computation.
+\end{definition}
+
+\begin{definition}[Common Subexpression Elimination]
+    Introduce a new temporary, storing the value computed by the common subexpression.
+\end{definition}
+
+\begin{example}
+    For instance, given the code fragment
+    \begin{minted}{java}
+int a = x + 42 * d;
+int b = y + 42 * d;
+    \end{minted}
+    
+    The common subexpression \texttt{42 * d} can be factored out to give
+    \begin{minted}{java}
+int t1 = 42 * d;
+int a = x + t1;
+int b = y + t1;
+    \end{minted}
+\end{example}
+
+\subsection{Algebraic Identities}
+
+\begin{definition}[Algebraic Identities Optimization]
+    Simple algebraic identities such as
+    \begin{align}
+        x \times 0 &= 0 \\
+        x \times 1 &= 1
+    \end{align}
+    
+    Can be used to simplify trivial expressions such as
+    \begin{itemize}
+        \item \texttt{x * 0} to \texttt{0}
+        \item \texttt{x * 1} to \texttt{x}
+    \end{itemize}
+    
+    Additionally, properties like commutatity of integer addition can help to factor out common subexpressions.
+    
+    However, it must also be noted that computations such as floating point arithmetic do not necessarily follow properties satisfied by real numbers, especially involving floating point precision.
+\end{definition}
+
+\begin{example}
+    Given the code fragment
+    \begin{minted}{java}
+int x = (2 + z) * j;
+int y = (z + 2) * k;
+    \end{minted}
+    
+    Given that \texttt{z} is an integer, meaning \texttt{2 + z} and \texttt{z + 2} are both integer expressions, the two subexpressions are commutative and yield identical results, meaning that it is safe to factor them out to become
+    \begin{minted}{java}
+int t1 = 2 + z;
+int x = t1 * j;
+int y = t1 * k;
+    \end{minted}
+\end{example}
+
+\subsection{Dead Code Elimination}
+
+\begin{definition}[Dead Code Elimination]
+    With \textit{control flow analysis} and \textit{data flow analysis}, it can be determined that some parts of the code is never reached and never execute and can safely be removed.
+\end{definition}
+
+\begin{example}
+    The body of the \texttt{if} statement in the code fragment below is never reached since the condition is always false, then the entire \texttt{if} block can be safety discarded.
+    \begin{minted}{java}
+int a = 2;
+if (a > 3)
+{
+    System.out.println("Hello World!");
+}
+    \end{minted}
+\end{example}
+
+\subsection{Constant Folding}
+
+\begin{definition}[Constant Folding Optimization]
+    Some subexpressions can be eagerly evaluated at compile time to reduce the number of instructions required, especially expressions involving numeric constants.
+    
+    It is important that semantics must be respectived, especially with respect to precision; that is,
+    \begin{itemize}
+        \item Compile-time precision must match run-time precision.
+    \end{itemize}
+\end{definition}
+
+\begin{example}
+    Expressions such as
+    \begin{minted}{java}
+int PI = 3.14159;
+int circumference = 2 * PI * r;
+    \end{minted}
+    
+    Can be folded by precomputing the expression \texttt{2 * PI}, giving
+    \begin{minted}{java}
+int PI = 3.14159;
+int circumference = 6.28318 * r;
+    \end{minted}
+    
+    Note that if \texttt{PI} has no later references, it can also be safety discarded by running a Dead Code Elimination pass after the Constant Folding pass.
+\end{example}
+
+\subsection{Strength Reduction}
+
+\begin{definition}[Strength Reduction]
+    \textit{Strength Reduction} involves substituting expression operations with semantically-equivalent but faster ones.
+    
+    In the order of slowest to fastest,
+    \begin{itemize}
+        \item Division, Modulo
+        \item Multiplication
+        \item Addition, Subtraction, Shifts
+        \item Comparisons
+    \end{itemize}
+    
+    That is, divisions and modulo operations are more expensive (slower) than multiplication, and so on.
+\end{definition}
+
+\begin{example}
+    Expressions such as
+    \begin{minted}{java}
+5 * x
+    \end{minted}
+    
+    May be substituted with
+    \begin{minted}{java}
+x << 2 + x
+    \end{minted}
+    
+    Since multiplication is more expensive than bitwise shift and addition.
+\end{example}
+
+\begin{definition}[Induction Variables]
+    A variable which is modified with each iteration by some common pattern may be subject to strength reduction via \textit{induction}.
+\end{definition}
+
+\begin{example}
+    In the loop
+    \begin{minted}{java}
+int i = 10;
+int t = 0;
+while (i > 0)
+{
+    i--;
+    t = 4 * i;
+    a[i] = b[t];
+}
+    \end{minted}
+    
+    The expression assigned to $t$ can be substituted with
+        \begin{minted}{java}
+int i = 10;
+int t = 4 * i;
+while (i > 0)
+{
+    i--;
+    t = t - 4;
+    a[i] = b[t];
+}
+    \end{minted}
+\end{example}
+
+\subsection{Inlining}
+
+\begin{definition}[Inlining]
+    \textit{Inlining} intends to avoid function calls which are expensive by replacing the function invocation via copying the function body to the call site and initializing with parameters.
+    
+    Note that
+    \begin{itemize}
+        \item Inlined function needs to be sufficiently small, or target code may suffer from code bloat.
+        \item Recursive functions need to be handled carefully.
+    \end{itemize}
+\end{definition}
+
+\begin{example}
+    Given the code fragment
+    \begin{minted}{c}
+#include <stdio.h>
+
+int foo(int a, int b)
+{
+    return (a + b) * b;
+}
+
+int main(void)
+{
+    int x = 0;
+    for (int a = 0; a < 10; a++)
+        for (int b = 0; b < 20; b++)
+            x += foo(a, b);
+            
+    printf("%d\n", x);
+
+    return 0;
+}
+    \end{minted}
+    
+    Then the call to \texttt{foo(a, b)} can be replaced with its body to give
+    \begin{minted}{c}
+#include <stdio.h>
+
+int main(void)
+{
+    int x = 0;
+    for (int a = 0; a < 10; a++)
+        for (int b = 0; b < 20; b++)
+            x += (a + b) * b;
+            
+    printf("%d\n", x);
+
+    return 0;
+}
+    \end{minted}
+    
+    Note that \texttt{foo(int, int)} could be eliminated after an additional Dead Code Elimination pass since it is no longer needed.
+\end{example}
+
+\subsection{Loop Optimizations}
+
+\subsubsection{Loop Unrolling}
+
+\begin{definition}[Loop Unrolling]
+    \textit{Loop Unrolling} refers to repeat the loop body given a known number of iterations.
+    
+    \begin{itemize}
+        \item Benefits
+        \begin{itemize}
+            \item Less jumps.
+            \item Less condition checking and no need for index variables.
+        \end{itemize}
+        \item Drawbacks
+        \begin{itemize}
+            \item Increase in code size.
+            \item May be too large for L1 instruction cache.
+        \end{itemize}
+    \end{itemize}
+\end{definition}
+
+\begin{example}
+    The loop
+    \begin{minted}{c}
+for (int i = 0; i < 3; i++)
+    printf("Hello World!\n");
+    \end{minted}
+    
+    Could be unrolled to
+    \begin{minted}{c}
+printf("Hello World!\n");
+printf("Hello World!\n");
+printf("Hello World!\n");
+    \end{minted}
+\end{example}
+
+\subsubsection{Fusion / Fission}
+
+\begin{definition}[Loop Fusion / Fission]
+    \textit{Loop Fusion} and \textit{Loop Fission} refers to splitting or combining loops with the same index range.
+    
+    \begin{itemize}
+        \item Loop fusion gives less jumps.
+        \item Loop fission allows multiple processors to execute each loop.
+    \end{itemize}
+\end{definition}
+
+\begin{example}
+    The following loops demonstrate fusion and fission:
+    
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{minted}{c}
+int a[100];
+int b[100];
+for (int i = 0; i < 100; i++)
+{
+    a[i] = 1;
+    b[i] = 2;
+}
+            \end{minted}
+            \caption{Fusion}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \begin{minted}{c}
+int a[100];
+int b[100];
+for (int i = 0; i < 100; i++)
+{
+    a[i] = 1;
+}
+for (int i = 0; i < 100; i++)
+{
+    b[i] = 2;
+}
+            \end{minted}
+            \caption{Fission}
+        \end{subfigure}
+        \caption{Loop Fusion and Loop Fission. Going from left version to right version is \textit{fission}, while going from right version to left version is \textit{fusion}.}
+        \label{fig:loop-fusion-fission}
+    \end{figure}
+\end{example}
+
+\subsubsection{Code Motion}
+
+\begin{definition}[Code Motion]
+    \textit{Code Motion} moves loop-invariant (loop-independent) code outside the loop.
+    
+    \begin{itemize}
+        \item Benefits
+        \begin{itemize}
+            \item Less instructions.
+            \item Constants may be stored in registers.
+        \end{itemize}
+        \item Drawbacks
+        \begin{itemize}
+            \item Can cause register spill.
+        \end{itemize}
+    \end{itemize}
+\end{definition}
+
+\begin{example}
+    For instance, in
+    \begin{minted}{c}
+#define N 100
+while (i <= N - 1) 
+{ 
+    // ... 
+}
+    \end{minted}
+    
+    The predicate check involves computing \texttt{N - 1} each iteration, which is unnecessary and can be moved out to become
+    \begin{minted}{c}
+#define N 100
+int max = N - 1;
+while (i <= max) 
+{
+    // ...
+}
+    \end{minted}
+\end{example}
+
+\subsubsection{Tiling}
+
+\begin{definition}[Tiling]
+    \textit{Tiling} creates smaller loops around blocks of data to make sure that the data fits within CPU caches.
+\end{definition}
+
+\begin{example}
+    For the loop
+    \begin{minted}{c}
+for (int i = 0; i < N; i++)
+{
+    // ...
+}
+    \end{minted}
+    
+    A nested loop can be introduced which allows finer partitions
+    \begin{minted}{c}
+for (int i = 0; i < N; i += B)
+{
+    for (int j = i; j < min(N, j+b); i++) {
+        // ...
+    }
+}
+    \end{minted}
+\end{example}
+
+\subsubsection{Loop Inversion}
+
+\begin{definition}[Loop Inversion]
+    \textit{Inversion} converts a \texttt{while} loop into an equivalent \texttt{do} loop in order to
+    \begin{itemize}
+        \item Reduce number of jumps, implying fewer pipeline stalls.
+    \end{itemize}
+\end{definition}
+
+\begin{example}
+    For instance, given the \texttt{while} loop
+    \begin{minted}{c}
+int i = 0;
+while (i < 100)
+{
+    // ...
+    i++;
+}
+    \end{minted}
+    
+    Is equivalently
+    \begin{minted}{c}
+int i = 0;
+if (i < 100)
+{
+    do {
+        // ...
+        i++:
+    } while (i < 100);
+}
+    \end{minted}
+\end{example}
+
+\subsubsection{Principles of Locality}
+
+\begin{definition}[Temporal Locality]
+    \textit{Temporal Locality} refers to reusing specific data or resource within a short period of time.
+\end{definition}
+
+\begin{definition}[Spatial Locality]
+    \textit{Spatial Locality} refers to using data between close storage locations, e.g. array elements.
+\end{definition}
+
+\subsubsection{Interchange}
+
+\begin{definition}[Interchange]
+    Outer and inner loops may be interchanged for better \textit{locality of reference}.
+\end{definition}
+
+\begin{example}
+    The outer loop performing less iterations could be swapped with the inner loop in
+    \begin{minted}{c}
+for (int i = 0; i < 10; i++)
+    for (int j = 0; j < 20; j++)
+        x[i][j] = i + j;
+    \end{minted}
+    
+    To become
+    \begin{minted}{c}
+for (int j = 0; j < 20; j++)
+    for (int i = 0; i < 10; i++)
+        x[i][j] = i + j;
+    \end{minted}
+\end{example}
+
+\subsubsection{Unswitching}
+
+\begin{definition}[Unswitching]
+    \textit{Unswitching} extracts conditional inside a loop by copying the loop for true and false branches.
+    \begin{itemize}
+        \item Helps with parallelism.
+        \item Allows optimizing loops independently.
+    \end{itemize}
+\end{definition}
+
+\begin{example}
+    Given the loop
+    \begin{minted}{c}
+for (int i = 0; i < 100; i++)
+{
+    doSomething();
+    if (predicate)
+    {
+        doSomethingElse();
+    }
+}
+    \end{minted}
+    
+    Then it becomes
+    \begin{minted}{c}
+if (predicate)
+{
+    for (int i = 0; i < 100; i++)
+    {
+        doSomething();
+        doSomethingElse();   
+    }
+} 
+else 
+{
+    for (int i = 0; i < 100; i++)
+    {
+        doSomething();
+    }
+}
+    \end{minted}
+\end{example}
+
+\subsubsection{Peephole Optimization vs Super Optimization}
+
+\begin{definition}[Peephole Optimization]
+    Aforementioned optimizations are all \textit{peephole} optimizations in that they
+    \begin{itemize}
+        \item Operate at limited scope.
+        \item Use pattern matching against predefined rules.
+        \item Keeps trying to apply optimizations until nothing changes.
+    \end{itemize}
+    
+    Note that there may not necessarily be a \textit{correct} order to apply different peephole optimizations, and that one peephole optimization may allow another to function.
+\end{definition}
+
+\begin{definition}[Super Optimization]
+    Given a program written in machine language, exhaustive search is performed to find the smallest equivalent program.
+    \begin{itemize}
+        \item Can be used to optimize critical inner loops.
+        \item Can be used to find peephole optimizer schemes.
+    \end{itemize}
+\end{definition}

@@ -50,14 +50,14 @@
     \begin{figure}[H]
         \centering
         \begin{minted}{java}
-            public void methodOne()
-            {
-                int x = 2;
-                System.out.println(x.getDate());
-                y++;
-                int y;
-                return x;
-            }
+public void methodOne()
+{
+    int x = 2;
+    System.out.println(x.getDate());
+    y++;
+    int y;
+    return x;
+}
         \end{minted}
         \caption{A program that is synatically correct but semantically wrong}
         \label{prog:syntactically-correct-semantically-wrong}
@@ -149,11 +149,11 @@ Note that this list is \textit{non-exhaustive}.
     \begin{itemize}[itemsep=4pt, parsep=4pt, topsep=8pt, partopsep=4pt]
         \item \textbf{Explicit Declaration}. (In Java) 
             \begin{minted}{java}
-                int i;
+int i;
             \end{minted}
         \item \textbf{Implicit Declaration}. (In Fortran)
             \begin{minted}{fortran}
-                    i;
+i;
             \end{minted}
             In Fortran, some identifiers \texttt{i}, \texttt{j}, ..., \texttt{n} are implicitly assumed to be integers, unless this feature is turned off.
     \end{itemize}
@@ -180,12 +180,12 @@ Note that this list is \textit{non-exhaustive}.
     \begin{figure}[H]
         \centering
         \begin{minted}{java}
-        public boolean foo(int n, int m) {
-            boolean tmp;
-            if (n<m) tmp = true;
-            else tmp = false;
-            return tmp;
-        }
+public boolean foo(int n, int m) {
+    boolean tmp;
+    if (n<m) tmp = true;
+    else tmp = false;
+    return tmp;
+}
         \end{minted}
         \caption{A Java method}
         \label{prog:example-java-binding}
@@ -240,14 +240,16 @@ Note that this list is \textit{non-exhaustive}.
 let x = 4;                  // Outermost scope L1
 if (x > 0)
 {                           // Inner scope L2
-    let x = 3;              // L2's x shadows / hides x from L1
+    let x = 3;              // L2's x shadows / 
+                            //     hides x from L1
     if (x > 1)
     {                       // Innermost scope L3
         x = x + 1;          // L3's x modifies x from L2
         print(x)            // => 4
     }
     
-    print(x);               // => 4 because L2's x modified in L3
+    print(x);               // => 4 because L2's
+                            //     x modified in L3
 }       
 print(x);                   // => 4 L1's x
         \end{minted}
