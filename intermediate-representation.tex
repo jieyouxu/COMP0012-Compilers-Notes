@@ -1,4 +1,4 @@
-\subsection{Intermediate Representation}
+\section{Intermediate Representation}
 
 \begin{definition}[Intermediate Representation (IR)]
     \textit{Intermediate Representation} (IR) acts as an adapter between the \textit{source language} and the \textit{target language}. This helps to decouple the compiler's front-end and back-end, and allows optimization to be source language-agnostic.
@@ -78,7 +78,7 @@
     \end{figure}
 \end{definition}
 
-\subsubsection{Linear Intermediate Representation}
+\subsection{Linear Intermediate Representation}
 
 \begin{definition}[Linear IR]
     A \textit{Linear Intermediate Representation} (LIR) is an instruction set for an abstract machine.
@@ -130,7 +130,7 @@
     \textit{Java Bytecode} is a stack-based IR which runs on the \textit{Java Virtual Machine}, a stack-based abstract machine.
 \end{example}
 
-\subsubsection{Register Machines and Three-Address Code}
+\subsection{Register Machines and Three-Address Code}
 
 \begin{definition}[Three-Address Code]
     \textit{Three-Address Code} (IR) is a register-based IR which has at most three addresses per instruction. Each instruction has the form
@@ -258,7 +258,7 @@
     \textit{Temporary variables} are new locations which are used to store intermediate values.
 \end{definition}
 
-\subsubsection{Translation}
+\subsection{Translation}
 
 \begin{definition}[Translation]
     Translation between languages requires dealing with \textit{nested constructs}. This derives the need for \textit{inductive}, \textit{template-based} translation
@@ -772,7 +772,7 @@ print(x)
     \end{figure}
 \end{example}
 
-\subsubsection{Implementing Three-Address Code}
+\subsection{Implementing Three-Address Code}
 
 \begin{definition}[TAC Implementation]
     \textit{Three-Address Code} (TAC) can be implemented by
@@ -885,7 +885,7 @@ print(x)
     \end{figure}
 \end{remark}
 
-\subsubsection{Stack Machines}
+\subsection{Stack Machines}
 
 \begin{definition}[Stack Machine]
     A \textit{Stack Machine} utilizes a \textit{stack} to perform operations which stores operands and results.
