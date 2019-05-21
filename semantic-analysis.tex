@@ -1446,3 +1446,149 @@ print(x)
         \end{subfigure}
     \end{figure}
 \end{example}
+
+\subsubsection{Implementing Three-Address Code}
+
+\begin{definition}[TAC Implementation]
+    \textit{Three-Address Code} (TAC) can be implemented by
+    \begin{itemize}
+        \item \textbf{Quadruples}
+        \item \textbf{Triples}
+        \item \textbf{Indirect Triples}
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Quadruples]
+    Each instruction in \textit{Quadruples} consist of an operator, two arguments field, as well as an result field.
+    \begin{itemize}
+        \item \textit{Operator}: type of instruction.
+        \item \textit{Arguments}: at most two, possibly empty.
+        \item \textit{Result}: address to store computed result.
+    \end{itemize}
+    
+    Note that \texttt{jump} instructions place label address in the result field.
+    
+    For example, the code fragment \texttt{a = -c + b} could be represented as
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{@{} c c c c @{}}
+            \toprule
+            Operator & Argument 1 & Argument 2 & Result \\
+            \midrule
+            \texttt{UMINUS} & $c$   &       & $t_1$ \\
+            \texttt{PLUS}   & $b$   & $t_1$ & $t_2$ \\
+            \texttt{ASSIGN} & $t_2$ &       & $a$ \\
+            \bottomrule
+        \end{tabular}
+        \caption{Example Quadruples}
+        \label{fig:example-quadruples}
+    \end{figure}
+\end{definition}
+
+\begin{definition}[Triples]
+    In \textit{Triples}, results are used as temporaries.
+    
+    For example
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{@{} c c c c @{}}
+            \toprule
+            Address & Operator & Argument 1 & Argument 2 \\
+            \midrule
+            20 & \texttt{UMINUS} & $c$   &        \\
+            21 & \texttt{PLUS}   & $b$   & $[20]$ \\
+            22 & \texttt{ASSIGN} & $a$   & $[21]$ \\
+            \bottomrule
+        \end{tabular}
+        \caption{Example Triples}
+        \label{fig:example-triples}
+    \end{figure}
+\end{definition}
+
+\begin{remark}
+    Note that Triples suffer from the problem that since optimization tends to need to move code around, operation addresses are not preserved and will need to be updated.
+\end{remark}
+
+\begin{definition}[Indirect Triples]
+    \textit{Indirect Triples} improve upon Triples by adding an additional address-resolution (pointer) table which allows instruction to refer to "virtual" addresses instead of fixed absolute addresses.
+    
+    For example,
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{@{} c c @{}}
+            \toprule
+            Pointer & Address \\
+            \midrule
+            $[20]$ & $45$ \\
+            $[21]$ & $46$ \\
+            $[22]$ & $47$ \\
+            \bottomrule
+        \end{tabular}
+        \quad
+        \begin{tabular}{@{} c c c c @{}}
+            \toprule
+            Address & Operator & Argument 1 & Argument 2 \\
+            \midrule
+            20 & \texttt{UMINUS} & $c$   &        \\
+            21 & \texttt{PLUS}   & $b$   & $[20]$ \\
+            22 & \texttt{ASSIGN} & $a$   & $[21]$ \\
+            \bottomrule
+        \end{tabular}
+        \caption{Example Indirect Triples}
+        \label{fig:example-indirect-triples}
+    \end{figure}
+\end{definition}
+
+\begin{remark}
+    Each type of TAC implementation has its own benefits and caveats.
+    \begin{figure}[H]
+        \centering
+        \begin{tabularx}{\textwidth}{@{} X X X @{}}
+            \toprule
+            Quadruples & Triples & Indirect Triples \\
+            \midrule
+            Easier to optimize
+            & Need to update references upon moving instructions
+            & Need to reorder statements but no changes to references \\
+            Could generate excessive temporaries 
+            &
+            & Saves space if temporaries are reused \\
+            \bottomrule
+        \end{tabularx}
+        \caption{Benefits and issues of the different TAC implementations}
+        \label{fig:tac-implemenations-evaluation}
+    \end{figure}
+\end{remark}
+
+\subsubsection{Stack Machines}
+
+\begin{definition}[Stack Machine]
+    A \textit{Stack Machine} utilizes a \textit{stack} to perform operations which stores operands and results.
+\end{definition}
+
+\begin{definition}[Abstract Stack Machine]
+    An \textit{Abstract Stack Machine} (ASM) has the properties
+    \begin{itemize}
+        \item Operands and results stored in stack.
+        \item No need for register allocation.
+        \item Detailed run-time organization can be delayed.
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Benefits and Drawbacks of Stack-based IRs]
+    Stack-Based IRs have the following benefits and drawbacks:
+    \begin{itemize}
+        \item Benefits
+        \begin{itemize}
+            \item Generate more compact IR.
+            \item Simpler compiler because independent instructions.
+            \item Simpler interpreter due to centralized memory access and less variation in instruction types.
+        \end{itemize}
+        \item Drawbacks
+        \begin{itemize}
+            \item More memory references are needed since variables need to be pushed back on to the stack.
+            \item Difficult to factor out common sub-expressions.
+            \item Instruction order tied to storage of temporary values making moving instructions around difficult, making optimization more difficult.
+        \end{itemize}
+    \end{itemize}
+\end{definition}
