@@ -149,3 +149,54 @@ class C
 \begin{definition}[Garbage]
     A \textit{garbage} is any value that is no longer needed for execution by later parts of the program. Specifically, it refers to allocated memory which contains data that is no longer needed.
 \end{definition}
+
+\begin{definition}[Reclaiming Memory]
+    There are two solutions for managing garbage:
+    \begin{enumerate}
+        \item Allow programmer to manage memory explicitly.
+        \item Employ automatic garbage collection.
+    \end{enumerate}
+    
+    Each of these solutions have their respective benefits and drawbacks:
+    \begin{itemize}
+        \item \textbf{Manual management}
+        \begin{itemize}
+            \item Benefits
+            \begin{itemize}
+                \item Low run time overhead.
+                \item Allows manual control of resources.
+                \item May not need to free memory if there are plenty left.
+            \end{itemize}
+            \item Drawbacks
+            \begin{itemize}
+                \item Memory leaks
+                \begin{itemize}
+                    \item Object allocated but no longer have any pointers referencing it making it inaccessible.
+                \end{itemize}
+                \item Dangling references
+                \begin{itemize}
+                    \item Multiple references to same object, one of them used to free the object but other references still point to same location.
+                \end{itemize}
+                \item Double free bugs
+                \begin{itemize}
+                    \item Trying to free a memory location which has already been freed.
+                \end{itemize}
+                \item More cognitive burden when writing code
+            \end{itemize}
+        \end{itemize}
+        \item \textbf{Automatic Garbage Collection (GC)}
+        \begin{itemize}
+            \item Benefits
+            \begin{itemize}
+                \item Lower cognitive burden, no need to explicitly manage memory, reducing memory-deallocation related bugs
+            \end{itemize}
+            \item Drawbacks
+            \begin{itemize}
+                \item Need additional run time resources
+                \item Likely not suitable for embedded development because rich run time environment and resources required
+                \item Could delay or stall program execution
+                \item Cannot coexist with manual management
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+\end{definition}
