@@ -104,6 +104,12 @@
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
 
+\algblock{Input}{EndInput}
+\algnotext{EndInput}
+\algblock{Output}{EndOutput}
+\algnotext{EndOutput}
+\newcommand{\Desc}[2]{\State \makebox[2em][l]{#1}#2}
+
 \usepackage[hidelinks]{hyperref}
 
 \definecolor{codebg}{rgb}{0.98,0.98,0.98}

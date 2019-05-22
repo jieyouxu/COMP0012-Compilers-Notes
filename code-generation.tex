@@ -1,0 +1,258 @@
+\section{Code Generation}
+
+\subsection{Basics}
+
+\begin{definition}[Code Generation]
+    \textit{Code Generation} refers to the conversion between IR into machine instructions. Note that the output may be
+    \begin{itemize}
+        \item Absolute machine language.
+        \begin{itemize}
+            \item Can directly execute.
+        \end{itemize}
+        \item Relocatable machine language.
+        \begin{itemize}
+            \item Subprograms can compile separately.
+        \end{itemize}
+        \item Assembly.
+        \begin{itemize}
+            \item Human readable but needs an Assembler to generate machine code.
+        \end{itemize}
+    \end{itemize}
+    
+    The process of \textit{code generation} has several components
+    \begin{enumerate}
+        \item \textbf{Instruction selection}.
+        \item \textbf{Instruction scheduling}.
+        \item \textbf{Register allocation}.
+        \item (\textit{Optional}) \textbf{debug information generation}.
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}[Major Processor Architectures]
+    There are three major processor architectures:
+    \begin{enumerate}
+        \item \textbf{Register}
+        \begin{itemize}
+            \item Operation between any two arbitrary registers.
+        \end{itemize}
+        \item \textbf{Stack}
+        \begin{itemize}
+            \item Operation between top of stack and items near top of stack.
+        \end{itemize}
+        \item \textbf{Accumulator}
+        \begin{itemize}
+            \item Processor has single calculating register (\textit{accumulator}) where calculations occur, other registers serve as data store.
+        \end{itemize}
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}[Instruction Set]
+    An \textit{instruction set} (IS), with its corresponding \textit{instruction set architecture} (ISA), is the interface between a computer's software and hardware. The IS defines permitted operations for which the processor is able to handle, including
+    \begin{itemize}
+        \item Native data types
+        \item Instructions
+        \item Registers
+        \item Address modes
+        \item Memory architecture
+        \item Interrupt and exception handling
+        \item External I/O
+    \end{itemize}
+    
+    There are two major instruction set flavours:
+    \begin{enumerate}
+        \item \textbf{RISC}: Reduced Instruction Set Computer
+        \item \textbf{CISC}: Complex Instruction Set Computer
+    \end{enumerate}
+\end{definition}
+
+\begin{remark}
+    Code generation needs information on target ISA such that generated code fits as many frequently used variables into registers (fastest access from processor).
+\end{remark}
+
+\begin{definition}[Registers]
+    \textit{Registers} can be categorized into three categories:
+    \begin{enumerate}
+        \item \textbf{General registers}
+        \begin{enumerate}
+            \item \textbf{Data registers}
+            \item \textbf{Pointer registers}
+            \item \textbf{Index registers}
+        \end{enumerate}
+        \item \textbf{Segment registers}
+        \item \textbf{Control registers}
+    \end{enumerate}
+\end{definition}
+
+\subsection{Simple Code Generator}
+
+\begin{definition}[Basic Blocks]
+    IR instructions can be grouped into \textit{basic blocks}. \textit{Basic blocks} are sequences of consecutive instructions where control flow enters at beginning of block and exits at end of block with no branching in between.
+    
+    A \textit{name} is considered \textit{live} at some given point of execution if its value is referenced afterwards in the program.
+\end{definition}
+
+\begin{definition}[Basic Block Leader]
+    A \textit{leader} of a basic block is an IR instruction statement which satisfies any of the three requirements:
+    \begin{enumerate}
+        \item First statement is a \textit{leader}.
+        \item Statement which is the target of jump is a \textit{leader}.
+        \item Statement immediately following a jump statement is a \textit{leader}.
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}[Identifying Basic Blocks]
+    The algorithm to partition a sequence of Three-Address Code (TAC) statements into basic blocks is given by
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Input
+                \State Sequence of TAC statements $stmts$
+            \EndInput
+            \Output
+                \State List of Basic Blocks
+            \EndOutput
+            \Procedure{PartitionTACIntoBasicBlocks}{$stmts$}
+                \State $leadersSet \gets \Call{FindLeaders}{stmts}$
+                \State $basicBlocks \gets []$
+                \ForEach{$leader \in leadersSet$}
+                    \State $basicBlock \gets [leader]$
+                    \State $next \gets \Call{NextLeader}{\null}$
+                    \State $s \gets \Call{StatementsBetween}{leader, next}$
+                    \State \Call{basicBlock.add}{$s$}
+                    \State \Call{basicBlocks.add}{$basicBlock$}
+                \EndFor
+                \State \Return{$basicBlocks$}
+            \EndProcedure
+        \end{algorithmic}
+        \caption{Partitioning TAC statements into basic blocks}
+        \label{prog:tac-to-basic-blocks}
+    \end{algorithm}
+\end{definition}
+
+\begin{definition}[Flow Graph]
+    A \textit{flow graph} is a representation of basic blocks.
+    \begin{itemize}
+        \item The \textit{initial node} is the basic block for which its leader is the first statement.
+        \item A \textit{direct edge} between two basic blocks $B_1 \to B_2$ indicates that either
+        \begin{itemize}
+            \item There exists a jump between last statement of $B_1$ and first statement of $B_2$.
+            \item $B_2$ immediate follows $B_1$ and that $B_1$ does not end with unconditional jump.
+        \end{itemize}
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Next-Use Analysis]
+    In order to generate code for a basic block, it is important to identify whether each variable within the basic block has references from later parts within the block.
+    \begin{itemize}
+        \item If variable is used again, variable is \textit{live} and should keep in register.
+        \item if variable is not used again, variable is \textit{dead} and should deallocate register.
+    \end{itemize}
+    
+    It is also important to identify whether a variable used within a basic block is \textit{live-on-exit}, that is if the variable is used in succeeding basic blocks. Since code is generated on a block-by-block basis, it cannot be determined how the generator arrived at the current block, and so the variables cannot be assumed to preside within registers. Information for next blocks are also not available as variables in registers should be restored back into memory before block is exited. It is important that variables are kept in registers as long as possible to avoid reloading if the variables are needed again in the same block.
+\end{definition}
+
+\begin{definition}[Next-Use Algorithm]
+    An algorithm for computing \textit{next-use} and \textit{liveness} information for a given basic block is given below.
+    
+    The algorithm consists of two passes:
+    \begin{enumerate}
+        \item \textbf{Forward pass}.
+        \begin{itemize}
+            \item Scan basic block to find its end.
+        \end{itemize}
+        \item \textbf{Backward pass}.
+        \begin{itemize}
+            \item Scan basic block from end to beginning.
+        \end{itemize}
+    \end{enumerate}
+    
+    Initially, it is assumed that
+    \begin{enumerate}
+        \item All non-temporaries are \textit{live}.
+        \item All temporaries are \textit{dead}.
+    \end{enumerate}
+    
+    If some TAC statement such as
+    \begin{minted}{text}
+x = y OP z
+    \end{minted}
+    
+    Is encountered during the backward pass, then
+    \begin{enumerate}
+        \item Information from symbol table about \textit{liveness} and \textit{next-use} \texttt{x}, \texttt{y} and \texttt{z} is attached to statement as metadata.
+        \item Set \texttt{x} to \textit{dead} and \textit{no next use} in the symbol table.
+        \item Set \texttt{y} and \texttt{z} to \textit{live} and their next uses to the statement in the symbol table.
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}[Simple Code Generation Algorithm]
+    Given some basic blocks, then for each basic block
+    \begin{itemize}
+        \item Translate one statement at a time based on location of operands.
+        \begin{itemize}
+            \item \textbf{Register Descriptor}
+            \begin{itemize}
+                \item What is contained within a register, used to determine whether a new register is required.
+            \end{itemize}
+            \item \textbf{Address Descriptor}
+            \begin{itemize}
+                \item Where a name is located, to determine which access method is suitable.
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+    
+    It is assumed that
+    \begin{itemize}
+        \item There exists a corresponding target-language operator for each TAC operator.
+        \item Computed results stored in a register for as long as possible, until the register is needed for another computation or before a procedure call, jump or label.
+    \end{itemize}
+    
+    Then the simple code generate algorithm is given by
+    \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Input
+                \State \texttt{x = y OP z}
+            \EndInput
+            \Output
+                \State Generated target code
+            \EndOutput
+            \Procedure{GenerateTargetCode}{\texttt{x = y OP z}}
+                \State $L$ \gets \Call{GetRegister}{\texttt{x = y OP z}}
+                \State $L_y$ \gets \Call{GetLocation}{\texttt{y}}
+                \If{$L_y \neq L$}
+                    \State \Call{Generate}{\texttt{MOV} $L_y$\texttt{,} $L$}
+                \EndIf
+                \State \Call{Generate}{\texttt{OP} $L_z$, L}
+                \State \Call{UpdateLocation}{\texttt{x}, L}
+                \If{$L \in R$}
+                    \State \Call{UpdateRegister}{L, \texttt{x}}
+                \EndIf
+                \If{$\mathtt{y} \in R \land \neg \Call{HasNextUse}{\mathtt{y}} \land \neg \Call{LiveOnExit}{\mathtt{y}}$}
+                    \State \Call{ClearRegister}{\texttt{y}}
+                \EndIf
+                \If{$\mathtt{z} \in R \land \neg \Call{HasNextUse}{\mathtt{z}} \land \neg \Call{LiveOnExit}{\mathtt{z}}$}
+                    \State \Call{ClearRegister}{\texttt{z}}
+                \EndIf
+            \EndProcedure
+            \Statex
+            \Procedure{GetRegister}{\texttt{x = y OP z}}
+                \If{$\Call{IsAt}{\mathtt{y}, L_y \in R} \land \neg \Call{ContainsOtherNames}{\mathtt{y}, L_y} \land \neg \Call{IsLive}{\mathtt{y}} \land \neg \Call{HasNextUse}{\mathtt{y}}$}
+                    \State \Return{$L_y$}
+                \ElsIf{$\Call{HasEmptyRegister}{R, r_\varnothing}$}
+                    \State \Return{$r_\varnothing$}
+                \ElsIf{$\Call{HasNextUse}{\mathtt{x}}$}
+                    \If{$\Exists \Call{SuitableRegisterOccupiedByVariable}{r_o, \mathtt{a}}$}
+                        \State $addr \gets \Call{GetAddress}{\mathtt{a}}$
+                        \State $\Call{Generate}{\mathtt{MOV}\ r_o, addr}$
+                        \State $\Call{UpdateRegister}{r_o, \mathtt{x}}$
+                        \State \Return{$r_o$}
+                    \EndIf
+                    \State \Return{$\Call{GetAddress}{\mathtt{x}}$}
+                \EndIf
+            \EndProcedure
+        \end{algorithmic}
+        \caption{Simple code generation algorithm \cite{dragon}}
+        \label{prog:simple-code-generation}
+    \end{algorithm}
+\end{definition}
+
+
