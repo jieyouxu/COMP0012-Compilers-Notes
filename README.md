@@ -7,3 +7,4 @@ Notes for COMP0012 Compilers:
 - Intermediate Representation
 - Optimization
 - Run time organization
+- Code generation
