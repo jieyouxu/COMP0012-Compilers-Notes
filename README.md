@@ -1,4 +1,5 @@
 # COMP0012 Compilers Notes
+
 Notes for COMP0012 Compilers:
 - Compiler Structure
 - Lexical Analysis
@@ -8,3 +9,5 @@ Notes for COMP0012 Compilers:
 - Optimization
 - Run time organization
 - Code generation
+
+Obtain the latest release [here](https://github.com/jieyouxu/COMP0012-Compilers-Notes/releases/latest).
